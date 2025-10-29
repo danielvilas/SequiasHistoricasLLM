@@ -1,0 +1,20 @@
+{
+  "name": "hail_validation",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.terminal.launchArgs": [
+          "-X",
+          "dev"
+        ]
+      }
+    }
+  },
+  "appPort": ["0.0.0.0:5001:5000"],
+  "onCreateCommand": ".devcontainer/on-create-command.sh",
+  "runArgs": []
+ 
+}

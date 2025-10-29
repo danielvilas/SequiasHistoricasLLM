@@ -1,0 +1,26 @@
+[project]
+requires-python = ">=3.11"
+name = "SequiasHistoricasLLM"
+version = "0.1.0"
+description = "TFM Daniel Vilas 2026"
+authors = [
+    {name = "Daniel Vilas Perulan", email="dvilas@csic.es"},
+]
+readme = "README.md"
+
+#[project.scripts]
+#crawler = "news_crawler.cli.app:main"
+
+[tool.setuptools]
+packages = ["sequias_historicas"]
+package-dir = {"" = "src"}
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+pandas = "^2.3.1"
+tabulate = "^0.9.0"
+scikit-learn = "^1.7.2"
+matplotlib = "^3.10.6"
+pyyaml = "^6.0.3"
