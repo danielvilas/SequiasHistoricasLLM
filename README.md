@@ -26,4 +26,12 @@ pip install -e .
 ```
 Se incluye la configuración de un DevContainer si se desea usar VS Code.
 
-Una vez instalado copiar en 
+Una vez instalado, asegurarse que en la ruta `/media/data/news/pdf/` hay dos carpetas con los datos de:
+| carpeta | ruta datos |
+|-|-|
+|`/media/data/news/raw/extremadura`|`g:/d.l/n/p/dv/news-extremadura`|
+|`/media/data/news/raw/hoy`|`g:/d.l/n/p/dv/news-extremadura-hoy`|
+
+Ya sea copiandolos o montando la carpeta remota
+
+> La ruta ha sido codificada por privacidad, pero identificable si se tiene acceso.
