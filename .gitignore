@@ -211,3 +211,5 @@ data/datasets/raw/*
 data/datasets/completo/*
 data/datasets/simple/*
 data/datasets/processed/*
+data/datasets/clean
+data/datasets/raw

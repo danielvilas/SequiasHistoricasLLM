@@ -29,9 +29,17 @@ Se incluye la configuración de un DevContainer si se desea usar VS Code.
 Una vez instalado, asegurarse que en la ruta `/media/data/news/pdf/` hay dos carpetas con los datos de:
 | carpeta | ruta datos |
 |-|-|
-|`/media/data/news/raw/extremadura`|`g:/d.l/n/p/dv/news-extremadura`|
-|`/media/data/news/raw/hoy`|`g:/d.l/n/p/dv/news-extremadura-hoy`|
+|`/media/data/news-historicas/raw/extremadura`|`g:/d.l/n/p/dv/news-historicas/raw/extremadura`|
+|`/media/data/news-historicas/raw/hoy`|`g:/d.l/n/p/dv/news-historicas/raw/hoy`|
+|`/media/data/news-historicas/clean`|`g:/d.l/n/p/dv/news-historicas/clean/`|
 
-Ya sea copiandolos o montando la carpeta remota
+Ya sea copiandolos o montando la carpeta remota.
+
+Los enlazaremos al data local
+```bash
+ln -s /media/data/news-historicas/raw/ ./data/datasets/raw
+ln -s /media/data/news-historicas/clean/ ./data/datasets/clean
+```
+
 
 > La ruta ha sido codificada por privacidad, pero identificable si se tiene acceso.
