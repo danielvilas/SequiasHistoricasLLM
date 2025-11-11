@@ -4,10 +4,13 @@ from .models import PdfFileInfo
 from PyPDF2 import PdfReader
 from alive_progress import alive_bar
 
+import pandas as pd
+
 import re
 from os import walk
 from typing import List, Optional
-
+import shutil
+import os
 
 bad_ends=[
     " EXTREMADURA.pdf",
@@ -34,8 +37,9 @@ bad_ends=[
 ]
 
 class PdfManager:
-    def __init__(self, pdf_raw_path="./data/datasets/raw"):
+    def __init__(self, pdf_raw_path="./data/datasets/raw", pdf_clean_path="./data/datasets/clean"):
         self.pdf_raw_path = pdf_raw_path
+        self.pdf_clean_path = pdf_clean_path
 
     def extract_text(self):
         # Placeholder for text extraction logic
@@ -185,3 +189,183 @@ class PdfManager:
                 pages = self._read_pdf_num_pages(pdf)
                 bar()
         pass
+
+    def sumnary_pages(self, pdfs: List[PdfFileInfo]):
+        total_pages = 0
+        data = {}
+        for pdf in pdfs:
+            id = f"{pdf.periodico}-{pdf.year}-{pdf.month}"
+            if pdf.periodico == "extremadura" and pdf.year == 1962 and pdf.month == 2:
+                print(f"Processing PDF for summary: {pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page} with num_pages={pdf.num_pages} and is_one_page={pdf.is_one_page}")
+            n_pages = pdf.num_pages or 0
+            empty_pages = 1 if pdf.num_pages == 0 or pdf.num_pages==None else 0
+            
+            day_pdfs = 0
+            day_pages = 0
+            month_pdfs = 0
+            month_pages = 0
+
+            if pdf.day is None and pdf.month is None:
+                print("PDF with no month and no day:", pdf.path)
+            if pdf.day is not None and pdf.month is None:
+                print("PDF with day but no month:", pdf.path)
+            if pdf.num_pages>1 and pdf.is_one_page:
+                print("PDF with more than one page but marked as one page:", pdf.path)  
+             
+            if pdf.day is None and pdf.month is not None:
+                # es un PDF mensual
+                month_pdfs = 1
+                month_pages = n_pages
+            if pdf.day is not None and pdf.month is not None \
+                and (pdf.is_one_page is None or pdf.is_one_page == False):
+                # es un PDF diario pero con varias paginas
+                day_pdfs = 1
+                day_pages = n_pages
+
+            
+            if id not in data:
+                data[id] = {'periodico': pdf.periodico, 
+                    'years': pdf.year, 'month': pdf.month,
+                    'num_pdfs': 0, 'total_pages': 0,
+                    'empty_pages': 0,
+                    'one_page_pdfs': 0,
+                    'month_pdfs':0,
+                    'month_pages':0,
+                    'day_pdfs':0,
+                    'day_pages':0,
+                    }
+            data[id]['num_pdfs'] += 1
+            data[id]['total_pages'] += n_pages
+            data[id]['empty_pages'] += empty_pages
+            if pdf.is_one_page: # esto es cuando el patron ha sacado que es de una pagina
+                data[id]['one_page_pdfs'] += 1
+            data[id]['month_pdfs'] += month_pdfs
+            data[id]['month_pages'] += month_pages
+            data[id]['day_pdfs'] += day_pdfs
+            data[id]['day_pages'] += day_pages
+
+        df = pd.DataFrame.from_dict(data, orient='index')
+        df = df.sort_values(by=['years','month'])
+        return df
+
+    def _classify_row(self, row):
+        if row['day_pdfs'] > 0 and row['month_pdfs'] == 0 and row['one_page_pdfs'] == 0:
+            return 'OnlyDayPdfs'
+        if row['month_pdfs'] > 0 and row['day_pdfs'] == 0 and row['one_page_pdfs'] == 0:
+            return 'OnlyMonthPdfs'
+        if row['day_pages'] == row['month_pages']:
+            if row['one_page_pdfs'] == row['day_pages']:
+                return 'DaysAndOnePageAggregatedExploded'
+            if row['one_page_pdfs'] == 0:
+                return 'DaysAndMonthAggregated'
+            return 'DaysAndMonthAggregatedErrorOnPage'
+        if row['day_pages'] == row['one_page_pdfs'] and row['month_pages'] == 0:
+            return 'DaysExplodedNoMonth'
+        
+        return 'other'
+    def classify_pdfs(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["class"] = df.apply(lambda x: self._classify_row(x), axis=1)
+        return df
+
+    def save_per_class_summary(self, df: pd.DataFrame, output_path: str):
+        classes = df['class'].unique()
+        for cls in classes:
+            df_class = df[df['class'] == cls]
+            df_class.to_csv(f"{output_path}/{cls}_summary.csv", index=False, header=True)
+        pass
+
+    def _iterante_over_pdfs_by_class(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str, 
+        extra_filter, action, force_reprocess=False, msg="Copying"):
+
+        df_class = df[df['class'] == classification]
+        
+        total= len(df_class)
+        i=0    
+        for _, row in df_class.iterrows(): # el _ es el indice de pandas, que es "libre"
+            periodico = row['periodico']
+            year = row['years']
+            month = row['month']
+            i+=1
+            if row['is_month_cleaned'] and not force_reprocess:
+                continue
+            # Filtrar los PDFs correspondientes a este periodo
+            # Que no esten ya limpios (is_clean is None or False)
+            # Que sean del periodico, año y mes correctos
+            # Que ademas sean diarios (day is not None) y de reconocidos como pagina (page is not None)
+            filtered_pdfs = [pdf for pdf in pdfs if pdf.periodico == periodico and 
+                (force_reprocess or pdf.is_clean is None or pdf.is_clean == False) and 
+                pdf.year == year and pdf.month == month 
+                and extra_filter(pdf, row)]
+            with alive_bar(len(filtered_pdfs), title=f'  ({i+1}/{total}) {msg} {periodico} {year}-{str(month).zfill(2)}', spinner='dots') as bar_inner:
+                for pdf in filtered_pdfs:
+                    action(pdf, row)
+                    bar_inner()
+        pass
+
+    def _copy_single_pdf_clean(self, pdf: PdfFileInfo):
+        source_path = f"{self.pdf_raw_path}/{pdf.periodico}/{pdf.path.lstrip('./')}"
+        target_dir = f"{self.pdf_clean_path}/{pdf.periodico}/{pdf.year}/{str(pdf.month).zfill(2)}/{str(pdf.day).zfill(2)}"
+        os.makedirs(target_dir, exist_ok=True)
+        target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}_{str(pdf.page).zfill(4)}.pdf"
+        shutil.copy2(source_path, target_path)
+        pdf.is_clean = True
+        pass
+
+    def copy_pages_files_clean(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str):
+        print(f"Copying cleaned files for classification: {classification}")
+
+        extra_filter = lambda pdf, row: pdf.day is not None and pdf.page is not None
+        action = lambda pdf, row: self._copy_single_pdf_clean(pdf)
+
+        self._iterante_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
+
+        print(f"Finished copying cleaned files for classification: {classification}\n")
+
+    def check_pages_files_clean(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str):
+        print(f"Checking cleaned files for classification: {classification}")
+
+        extra_filter = lambda pdf, row: pdf.day is not None and pdf.page is not None
+        action = lambda pdf, row: self._check_single_pdf_clean(pdf)
+
+        self._iterante_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
+
+        print(f"Finished checking cleaned files for classification: {classification}\n")
+
+
+    def _check_month_cleaned(self, row: pd.Series) -> bool:
+        target_dir = f"{self.pdf_clean_path}/{row['periodico']}/{row['years']}/{str(row['month']).zfill(2)}"
+        if not os.path.exists(target_dir):
+            return False
+        n_files = 0
+        for root, dirs, files in walk(target_dir):
+            n_files += len(files)
+        
+        if n_files == 0: return False
+        if row['class'] in ['DaysAndOnePageAggregatedExploded', 'DaysExplodedNoMonth']:
+            expected_files = row['day_pages']
+            if n_files == expected_files:
+                return True
+            else:
+                return False
+
+        return False
+
+    def _action_clean_month(self, pdf: PdfFileInfo, row):
+        if row['is_month_cleaned'] is not None and row['is_month_cleaned'] == False:
+            pdf.is_clean = False
+        pass
+
+    def check_month_cleaned(self, df: pd.DataFrame,pdfs: List[PdfFileInfo])-> pd.DataFrame:
+
+        df["is_month_cleaned"] = df.apply(lambda row: self._check_month_cleaned(row), axis=1)
+
+        extra_filter = lambda pdf, row: True
+        action = lambda pdf, row: self._action_clean_month(pdf, row)
+
+        self._iterante_over_pdfs_by_class(pdfs, df, 'DaysAndOnePageAggregatedExploded', extra_filter, action, force_reprocess=True,msg="Setting isClean" )
+        self._iterante_over_pdfs_by_class(pdfs, df, 'DaysExplodedNoMonth', extra_filter, action, force_reprocess=True,msg="Setting isClean" )
+
+
+        return df
+
+
