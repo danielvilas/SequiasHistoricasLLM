@@ -1,7 +1,7 @@
 from .PdfFilePatterns import patterns
 from .models import PdfFileInfo
 
-from PyPDF2 import PdfReader
+from pypdf import PdfReader, PdfWriter
 from alive_progress import alive_bar
 
 import pandas as pd
@@ -35,6 +35,8 @@ bad_ends=[
     "_1HOY.pdf",
     " H0Y.pdf",
 ]
+
+ediciones_hoy = ['BAD', 'CAC', 'MER', 'SUP', 'DEP', 'SUB']  # Badajoz, Caceres, Merida, Suplemento, Deportes, Suplemento B
 
 class PdfManager:
     def __init__(self, pdf_raw_path="./data/datasets/raw", pdf_clean_path="./data/datasets/clean"):
@@ -98,6 +100,7 @@ class PdfManager:
 
     def list_pdfs(self,newspaper="extremadura", year=None) -> List[PdfFileInfo]:
         self._validate_newspaper(newspaper)
+        print ("Listing PDFs for newspaper:", newspaper)
         lines=0
         pdfs = []
         for pattern in patterns:
@@ -172,7 +175,7 @@ class PdfManager:
         try:
             reader = PdfReader(path)
             pdf.num_pages = len(reader.pages)
-    
+            reader.stream.close()
             if pdf.num_pages == 1 and pdf.page is not None:
                 pdf.is_one_page = True
 
@@ -182,8 +185,7 @@ class PdfManager:
             return None
 
     def fill_num_pages(self, pdfs: List[PdfFileInfo]):
-        # Placeholder for logic to fill num_pages attribute
-        
+       
         with alive_bar(len(pdfs), title='Checking PDFs pages', spinner='dots') as bar:
             for pdf in pdfs:
                 pages = self._read_pdf_num_pages(pdf)
@@ -195,8 +197,7 @@ class PdfManager:
         data = {}
         for pdf in pdfs:
             id = f"{pdf.periodico}-{pdf.year}-{pdf.month}"
-            if pdf.periodico == "extremadura" and pdf.year == 1962 and pdf.month == 2:
-                print(f"Processing PDF for summary: {pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page} with num_pages={pdf.num_pages} and is_one_page={pdf.is_one_page}")
+            
             n_pages = pdf.num_pages or 0
             empty_pages = 1 if pdf.num_pages == 0 or pdf.num_pages==None else 0
             
@@ -263,6 +264,7 @@ class PdfManager:
             return 'DaysExplodedNoMonth'
         
         return 'other'
+
     def classify_pdfs(self, df: pd.DataFrame) -> pd.DataFrame:
         df["class"] = df.apply(lambda x: self._classify_row(x), axis=1)
         return df
@@ -274,7 +276,7 @@ class PdfManager:
             df_class.to_csv(f"{output_path}/{cls}_summary.csv", index=False, header=True)
         pass
 
-    def _iterante_over_pdfs_by_class(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str, 
+    def _iterate_over_pdfs_by_class(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str, 
         extra_filter, action, force_reprocess=False, msg="Copying"):
 
         df_class = df[df['class'] == classification]
@@ -302,11 +304,15 @@ class PdfManager:
                     bar_inner()
         pass
 
-    def _copy_single_pdf_clean(self, pdf: PdfFileInfo):
+    
+    def _copy_single_pdf_clean(self, pdf: PdfFileInfo, code=None):
         source_path = f"{self.pdf_raw_path}/{pdf.periodico}/{pdf.path.lstrip('./')}"
         target_dir = f"{self.pdf_clean_path}/{pdf.periodico}/{pdf.year}/{str(pdf.month).zfill(2)}/{str(pdf.day).zfill(2)}"
         os.makedirs(target_dir, exist_ok=True)
-        target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}_{str(pdf.page).zfill(4)}.pdf"
+        if code is not None:
+            target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}_{str(code['n_pag']).zfill(4)}_{code['prov']}.pdf"
+        else:
+            target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}_{str(pdf.page).zfill(4)}.pdf"
         shutil.copy2(source_path, target_path)
         pdf.is_clean = True
         pass
@@ -317,7 +323,7 @@ class PdfManager:
         extra_filter = lambda pdf, row: pdf.day is not None and pdf.page is not None
         action = lambda pdf, row: self._copy_single_pdf_clean(pdf)
 
-        self._iterante_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
+        self._iterate_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
 
         print(f"Finished copying cleaned files for classification: {classification}\n")
 
@@ -327,7 +333,7 @@ class PdfManager:
         extra_filter = lambda pdf, row: pdf.day is not None and pdf.page is not None
         action = lambda pdf, row: self._check_single_pdf_clean(pdf)
 
-        self._iterante_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
+        self._iterate_over_pdfs_by_class(pdfs, df, classification, extra_filter, action)
 
         print(f"Finished checking cleaned files for classification: {classification}\n")
 
@@ -341,13 +347,23 @@ class PdfManager:
             n_files += len(files)
         
         if n_files == 0: return False
-        if row['class'] in ['DaysAndOnePageAggregatedExploded', 'DaysExplodedNoMonth']:
-            expected_files = row['day_pages']
+        if row['class'] in ['DaysAndOnePageAggregatedExploded', 'DaysExplodedNoMonth', # Los que ya estan G1 y G2
+                         'OnlyDayPdfs', 'DaysAndMonthAggregatedErrorOnPage',# Los que extraemos de los diarios G3 y G5
+                         'DaysAndMonthAggregated']: # Los que extraemos de los diarios G4
+            expected_files = row['day_pages'] # Sacamos el nuero que tener de los diarios
             if n_files == expected_files:
                 return True
             else:
                 return False
 
+        if row['class'] == 'OnlyMonthPdfs': # Los casos especiales de meses solo con el mes G6
+            expected_files = row['month_pages'] # Sacamos el nuero que tener de los mensuales
+            if n_files == expected_files:
+                return True
+            else:   
+                return False
+
+    
         return False
 
     def _action_clean_month(self, pdf: PdfFileInfo, row):
@@ -362,10 +378,96 @@ class PdfManager:
         extra_filter = lambda pdf, row: True
         action = lambda pdf, row: self._action_clean_month(pdf, row)
 
-        self._iterante_over_pdfs_by_class(pdfs, df, 'DaysAndOnePageAggregatedExploded', extra_filter, action, force_reprocess=True,msg="Setting isClean" )
-        self._iterante_over_pdfs_by_class(pdfs, df, 'DaysExplodedNoMonth', extra_filter, action, force_reprocess=True,msg="Setting isClean" )
+        # Los que ya estan extraidos
+        self._iterate_over_pdfs_by_class(pdfs, df, 'DaysAndOnePageAggregatedExploded', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) #G1
+        self._iterate_over_pdfs_by_class(pdfs, df, 'DaysExplodedNoMonth', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) #G2
+        
+        # Los que extraemos de los diarios
+        self._iterate_over_pdfs_by_class(pdfs, df, 'DaysAndMonthAggregatedErrorOnPage', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) #G3
+        self._iterate_over_pdfs_by_class(pdfs, df, 'DaysAndMonthAggregated', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) # G4
+        self._iterate_over_pdfs_by_class(pdfs, df, 'OnlyDayPdfs', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) # G5
 
+        # los casos especiales de meses solo con el mes
+        self._iterate_over_pdfs_by_class(pdfs, df, 'OnlyMonthPdfs', extra_filter, action, force_reprocess=True,msg="Setting isClean" ) # G6 
 
         return df
 
+    def _extract_pages_from_daily_pdfs(self, pdf: PdfFileInfo,row):
 
+        if pdf.num_pages == 1:
+            if pdf.periodico=="hoy" and pdf.page is None:
+                codes = self.extract_hoy_codes(pdf)
+                if codes is not None:
+                    self._copy_single_pdf_clean(pdf, code=codes)
+
+            return
+
+        source_path = f"{self.pdf_raw_path}/{pdf.periodico}/{pdf.path.lstrip('./')}"
+        target_dir = f"{self.pdf_clean_path}/{pdf.periodico}/{pdf.year}/{str(pdf.month).zfill(2)}/{str(pdf.day).zfill(2)}"
+        os.makedirs(target_dir, exist_ok=True)
+        reader = PdfReader(source_path)
+        for i in range(len(reader.pages)):
+            target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}_{str(i+1).zfill(4)}.pdf"
+            writer = PdfWriter()
+            writer.add_page(reader.pages[i])
+            with open(target_path, 'wb') as f_out:
+                writer.write(f_out)
+            
+        pass
+
+    def extract_pages_from_daily_pdfs(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str):
+        
+        extra_filter = lambda pdf, row: True if pdf.day is not None and (pdf.page is  None) else False
+        action = lambda pdf, row: self._extract_pages_from_daily_pdfs(pdf, row)
+
+        self._iterate_over_pdfs_by_class(pdfs, df, classification, extra_filter, action, msg="Extracting") 
+        pass
+
+    def _extract_pages_from_monthly_pdfs(self, pdf: PdfFileInfo,row):
+        source_path = f"{self.pdf_raw_path}/{pdf.periodico}/{pdf.path.lstrip('./')}"
+        target_dir = f"{self.pdf_clean_path}/{pdf.periodico}/{pdf.year}/{str(pdf.month).zfill(2)}/00"
+        os.makedirs(target_dir, exist_ok=True)
+        reader = PdfReader(source_path)
+        for i in range(len(reader.pages)):
+            target_path = f"{target_dir}/{pdf.year}{str(pdf.month).zfill(2)}00_{str(i+1).zfill(4)}.pdf"
+            writer = PdfWriter()
+            writer.add_page(reader.pages[i])
+            with open(target_path, 'wb') as f_out:
+                writer.write(f_out)
+        pass
+    
+    def extract_pages_from_monthly_pdfs(self, pdfs: List[PdfFileInfo], df: pd.DataFrame, classification: str):
+        
+        extra_filter = lambda pdf, row: True if pdf.day is None else False
+        action = lambda pdf, row: self._extract_pages_from_monthly_pdfs(pdf, row)
+        self._iterate_over_pdfs_by_class(pdfs, df, classification, extra_filter, action, msg="Extracting") 
+        pass
+
+    def extract_hoy_codes(self, pdf: PdfFileInfo):
+        filename = pdf.path.split("/")[-1]
+        #print (f"{pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page} : {filename}")
+        
+        pattern = r'(\d{2})(\d{8})([a-zA-Z\d])([a-zA-Z]{3})\.pdf$'
+        match = re.search(pattern, filename)
+        if not match and pdf.year==1993 and pdf.month==5 and pdf.day in [2,24]:
+            # en estos dos dias hay un formato diferente
+            # 4419930502DEPCAC 44 19930502 DEPCAC
+            pattern = r'(\d{2})(\d{8})([a-zA-Z\d]{3})([a-zA-Z]{3})\.pdf$'
+            match = re.search(pattern, filename)
+        if match:
+            day_str = f"{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}"
+            day_fname = match.group(2)
+            if day_str != day_fname:
+                print (f" {pdf.path}  -> MISMATCH in day: {day_str} vs {day_fname}")
+            n_pag = match.group(1)
+            code = match.group(3)
+            prov = match.group(4)
+            return {
+                "code": code,
+                "prov": prov,
+                "n_pag": n_pag,
+                "date_ok": day_str == day_fname,
+            }
+        else:
+            print (f"{filename}  -> NO MATCH")
+        return None
