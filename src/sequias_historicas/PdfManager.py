@@ -395,12 +395,17 @@ class PdfManager:
     def _extract_pages_from_daily_pdfs(self, pdf: PdfFileInfo,row):
 
         if pdf.num_pages == 1:
+            ret = True
             if pdf.periodico=="hoy" and pdf.page is None:
                 codes = self.extract_hoy_codes(pdf)
                 if codes is not None:
                     self._copy_single_pdf_clean(pdf, code=codes)
 
-            return
+            # Dos casos que tienen un PDF diario de una sola pagina pero que es correcto
+            if pdf.periodico=="extremadura" and pdf.year == 1949 and pdf.month ==3: ret = False
+            if pdf.periodico=="extremadura" and pdf.year == 1955 and pdf.month ==4: ret = False
+            
+            if ret:  return
 
         source_path = f"{self.pdf_raw_path}/{pdf.periodico}/{pdf.path.lstrip('./')}"
         target_dir = f"{self.pdf_clean_path}/{pdf.periodico}/{pdf.year}/{str(pdf.month).zfill(2)}/{str(pdf.day).zfill(2)}"

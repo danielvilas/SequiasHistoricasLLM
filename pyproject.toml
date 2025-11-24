@@ -12,7 +12,7 @@ readme = "README.md"
 #crawler = "news_crawler.cli.app:main"
 
 [tool.setuptools]
-packages = ["sequias_historicas"]
+packages = ["sequias_historicas","es_geo_locator"]
 package-dir = {"" = "src"}
 
 [tool.poetry]

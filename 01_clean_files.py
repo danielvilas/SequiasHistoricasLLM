@@ -19,26 +19,27 @@ pd_summary_class_output_path = "data/datasets/clean/summary/"
 
 def s00_check_filenames() -> List[PdfFileInfo]:
 
+    found_pdfs = []
     if os.path.exists(cvs_output_path):
         print(f"CSV file already exists at {cvs_output_path}. Skipping filename check.")
-        return pdf_manager.load_csv(cvs_output_path)
-
-    found_e = pdf_manager.list_pdfs(newspaper="extremadura", year=None)
-    found_h = pdf_manager.list_pdfs(newspaper="hoy", year=None)
-    print (f"Total PDFs found: {len(found_e) + len(found_h)}")
-
-    print (f"Total PDFs found (Extremadura): {len(found_e)}")
-    print (f"Total PDFs found (Hoy): {len(found_h)}")       
-
+        found_pdfs = pdf_manager.load_csv(cvs_output_path)
+    else:
+        found_e = pdf_manager.list_pdfs(newspaper="extremadura", year=None)
+        found_h = pdf_manager.list_pdfs(newspaper="hoy", year=None)
+        found_pdfs = found_e + found_h
+        print (f"Total PDFs found (Extremadura): {len(found_e)}")
+        print (f"Total PDFs found (Hoy): {len(found_h)}")       
+    
+    print (f"Total PDFs found: {len(found_pdfs)}")
     coherent_founds = 0
-    for pdf in found_e + found_h:
+    for pdf in found_pdfs:
         if pdf.coherent_path == False:
             print (f"Incoherent path: {pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}")
         elif pdf.coherent_path == True:
             coherent_founds += 1
     print(f"Total coherent paths found: {coherent_founds}")
     print("")
-    return found_e + found_h
+    return found_pdfs
 
 
 def s01_fill_num_pages(pdfs: List[PdfFileInfo])->pd.DataFrame:
@@ -85,6 +86,8 @@ def s03_copy_files(pdfs: List[PdfFileInfo],df: pd.DataFrame):
 
 def main():
     pdfs = s00_check_filenames()
+    pdf_manager.save_cvs(pdfs, cvs_output_path)
+    
     df = s01_fill_num_pages(pdfs)
     df = s02_check_month_cleaned(df,pdfs)
     s03_copy_files(pdfs, df)

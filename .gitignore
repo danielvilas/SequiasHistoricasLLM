@@ -214,3 +214,4 @@ data/datasets/processed/*
 data/datasets/clean
 data/datasets/raw
 test.txt
+geo_db
