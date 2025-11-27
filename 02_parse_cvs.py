@@ -5,6 +5,8 @@ import pandas as pd
 
 import logging
 
+#logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger("pypdf")
 logger.setLevel(logging.ERROR)
 
@@ -27,7 +29,8 @@ def process_paper(paper_name):
 
 def main():
     #csv_manager._get_location("Cáceres, España")
-    
+    #res =   geoLocator.search_unidad_adm("Extremadura")
+    #print(res.data[0]["latitud"], res.data[0]["longitud"])
     process_paper("extremadura")
     #process_paper("hoy")
 

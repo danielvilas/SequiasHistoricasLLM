@@ -215,3 +215,5 @@ data/datasets/clean
 data/datasets/raw
 test.txt
 geo_db
+out.txt
+*.png

@@ -200,3 +200,67 @@ class Ign_Nucleos_Poblacion_Client(Ign_OgcClient):
         if "geometry" in item:
             ret["geometry"] = item["geometry"]    
         return ret
+
+
+class Ign_Unidades_Adm_Client(Ign_OgcClient):
+    """Client for interacting with IGN Nucleos de Poblacion collection."""
+
+    def __init__(self, base_url: str = base_url_ign):
+        """
+        Initialize the client for the IGN Nucleos de Poblacion collection.
+        """
+        super().__init__(collection="administrativeunit", base_url=base_url)
+
+    def build_params_search_by_name(self, name: str) -> dict:
+        """
+        Build parameters for searching Nucleos de Poblacion by name.
+        Args:
+            name (str): The name to search for.
+        Returns:
+            dict: A dictionary of parameters for the search.
+        """
+        return {
+            "nameunit": name
+        }
+    
+    def build_params_search_all_items(self) -> dict:
+        """
+        Build parameters for searching all Nucleos de Poblacion items.
+        This implementation skips geometry to reduce data size.
+        Returns:
+            dict: A dictionary of parameters for the search.
+        """
+        return {"skipGeometry": "true"}
+
+    def extract_item_info(self, item: dict, skip_geometry=True) -> dict:
+        """
+        Extract relevant information from a Nucleos de Poblacion item.
+        Args:
+            item (dict): The item from which to extract information.
+        Returns:
+            list: A list of extracted information.
+        """
+        if skip_geometry and "geometry" in item:
+            item.pop("geometry")
+        LOG.debug(f"Extracting information from item: {item}")
+        
+        properties = item.get("properties", {})
+        # nombre = properties.get("nombre", "")
+        # provincia = properties.get("provincia", "")
+        # comunidad = properties.get("comunidad", "")
+        # lat = properties.get("latitud", "")
+        # lon = properties.get("longitud", "")
+
+        ret = {
+            "id": item.get("id", ""),
+            "nombre": properties.get("nameunit", ""),
+            "codnut1": properties.get("codnut1", ""),
+            "codnut2": properties.get("codnut2", ""),
+            "codnut3": properties.get("codnut3", ""),
+            "latitud": properties.get("latitud", ""),
+            "longitud": properties.get("longitud", ""),
+            "nationallevelname": properties.get("nationallevelname", ""),
+        }
+        if "geometry" in item:
+            ret["geometry"] = item["geometry"]    
+        return ret

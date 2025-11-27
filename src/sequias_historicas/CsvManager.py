@@ -115,9 +115,10 @@ class CsvManager:
                     line_d["ubicacion"] ="Trujillo"
                 if line_d["ubicacion"] =="Cácceres":
                     line_d["ubicacion"] ="Cáceres"
-                if line_d["ubicacion"] in ["Valencia deAlcánatara","Pedanías de Valencia de Alcántara"]: # Las pedanias son barrios
+                if line_d["ubicacion"] in ["Valencia deAlcánatara","Pedanías de Valencia de Alcántara"]: # Las pedanias son como barrios
                     line_d["ubicacion"] ="Valencia de Alcántara"
-
+                if line_d["ubicacion"] =="Garrovillas":
+                    line_d["ubicacion"] ="Garrovillas de Alconétar"
                 data.append(line_d)
 
                 #print('line[{}] = {}'.format(i, line))
