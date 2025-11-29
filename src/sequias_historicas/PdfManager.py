@@ -476,3 +476,20 @@ class PdfManager:
         else:
             print (f"{filename}  -> NO MATCH")
         return None
+
+
+    def extract_text(self, paper:str, year:int, month:int, day:int, page:int, ed:str=None)-> str:
+        filename = f"{year:04d}{month:02d}{day:02d}_{page:04d}" 
+        if ed:
+            filename += f"_{ed}"
+        filepath =f"./data/datasets/clean/{paper}/{year:04}/{month:02}/{day:02}/{filename}.pdf"
+        if os.path.exists (filepath):
+            reader = PdfReader(filepath)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() + "\n"
+            reader.stream.close()
+            return text,filepath
+        else:
+            print (f"File NOT found: {filepath}")
+            return None,filepath

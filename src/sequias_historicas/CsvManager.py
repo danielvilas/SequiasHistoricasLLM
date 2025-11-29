@@ -1,10 +1,17 @@
 import pandas as pd
+import numpy as np
 from es_geo_locator.geoLocator import GeoLocatorDB 
 from es_geo_locator.consts import prov_geo_map
 from .PdfManager import PdfManager
 
 import csv
 from alive_progress import alive_bar
+
+import re
+pattern_2_monhts= r'^([a-zA-Z]{3})-([a-zA-Z]{3})_(\d{4}) Pag (\d+)$' #mar-abr_1959 Pag 32
+pattern_1_monhts= r'^([a-zA-Z]{3})_(\d{4})[\s_]Pag (\d+)$' #mar-abr_1959 Pag 32
+pattern_1_monhts_Ed= r'^([a-zA-Z]{3})_(\d{4})_(\d)[\s_]Pag (\d+)$' #mar-abr_1959 Pag 32
+
 class CsvManager:
     def __init__(self, pdf_raw_path="./data/datasets/raw", pdf_clean_path="./data/datasets/clean", pdf_manager:PdfManager=None,geoLocator:GeoLocatorDB=None):
         self.pdf_raw_path = pdf_raw_path
@@ -255,3 +262,58 @@ class CsvManager:
     def save_clean_csv(self, df:pd.DataFrame, paper:str):
         file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_clean.csv"
         df.to_csv(file_path, index=False)
+
+    def search_page_of_month(self, paper:str, year:int, month:int):
+        # search for the pdf page corresponding to the month in the given paper and year
+        pdf_info = self.pdf_manager.load_pdf_info(paper, year)
+        if pdf_info is None:
+            return None
+        for item in pdf_info:
+            if item['month'] == month:
+                return item['page']
+        return None
+    
+    def _search_2_months_file(self, paper, row, match):
+        year = int(match.group(3))
+        month_1_str = match.group(1).lower()
+        month_2_str = match.group(2).lower()
+        page = int(match.group(4))
+
+
+    def _search_page_alt_file(self, paper, row):
+        pass
+
+    def fill_page_locations(self, paper:str, df:pd.DataFrame) -> pd.DataFrame:
+        # fill the pdf_page field if missing, using the month from news_date
+        
+
+        def fill_page(row):
+            pdf_page = row['pdf_page']
+
+            if (isinstance(pdf_page, float) and np.isnan(pdf_page)) or \
+                pdf_page is None or np.nan == pdf_page or pdf_page == '':
+                return {"file":pdf_page, "pattern":"Alt_file"}
+                #return self._search_page_alt_file(paper, row)
+
+            if " EXTREMADURA" in pdf_page:
+                pdf_page = pdf_page.replace(" EXTREMADURA","").strip()
+            if " Extremadura" in pdf_page:
+                pdf_page = pdf_page.replace(" Extremadura","").strip()
+
+            print (f"Checking pdf_page field: {pdf_page}")
+            m = re.match( pattern_2_monhts,pdf_page)
+            if m:
+                return {"file":pdf_page,"pattern":"2_months_file"}
+                #print (f"\tFilling page for row: {pdf_page}")
+            m = re.match( pattern_1_monhts,pdf_page)
+            if m:
+                return {"file":pdf_page,"pattern":"1_months_file"}
+                #print (f"\tFilling page for row: {pdf_page}")
+            m = re.match( pattern_1_monhts_Ed,pdf_page)
+            if m:
+                return {"file":pdf_page,"pattern":"1_months_file_Ed"}
+                #print (f"\tFilling page for row: {pdf_page}")
+            return {"file":pdf_page, "pattern":None}
+
+        df_file = df.apply(lambda row: pd.Series(fill_page(row)), axis=1)
+        return df_file
