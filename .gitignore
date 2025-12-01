@@ -213,3 +213,8 @@ data/datasets/simple/*
 data/datasets/processed/*
 data/datasets/clean
 data/datasets/raw
+test.txt
+geo_db
+out.txt
+*.png
+data/datasets/json_test/
