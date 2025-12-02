@@ -31,12 +31,12 @@ def main():
         #copy filepath to outfile
         os.system(f"cp '{filepath}' '{outfile}'")
         print(f"Copied PDF to {outfile}\n{'-'*40}\n")
-        json_data ={"@context": "https://schema.org/"
+        json_data ={"@context": "https://schema.org/",
                     "@type":"NewsArticle",
                     "headline":f"{paper} {year}-{month}-{day} page {page}",
                     "articleBody":text,
                     "datePublished":f"{year:04}-{month:02}-{day:02}T00:00:00+01:00",
-                    "mainEntityOfPage":"https://not-existent.example.com/",
+                    "mainEntityOfPage":{"@id":"https://not-existent.example.com/"},
                 
                     }
         json_outfile=f"data/datasets/json_test/json/{paper}_{year}_{month}_{day}_page_{page}"
