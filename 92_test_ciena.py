@@ -1,4 +1,6 @@
 from sequias_historicas.CienaLauncher import CienaLauncher
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 ciena = CienaLauncher()
 

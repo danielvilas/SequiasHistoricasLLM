@@ -44,8 +44,8 @@ class CienaLauncher:
                 },
             },
             "event": {
-                "tag": "granizo",
-                "text_es": "granizo",
+                "tag": "drought",
+                "text_es": "sequia",
             },
         }
         return CONFIG
@@ -83,6 +83,8 @@ class CienaLauncher:
         execution_times = extractor.output_manager.write_execution_times_to_json(
             os.path.join(output_folder, "execution_times.json")
         )
+
+
         pass
 
     def launch(self, model:str, input_folder:str,output_folder:str):
