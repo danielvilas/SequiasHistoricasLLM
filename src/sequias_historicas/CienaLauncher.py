@@ -13,7 +13,7 @@ class CienaLauncher:
         STRUCTURED_OUTPUT_MODE = "prompt"
 
         CONFIG = {
-            "extraction_task": "hail_event",
+            "extraction_task": "event",
             "llm": {
                 "name": MODEL,
                 "structured_output_mode": STRUCTURED_OUTPUT_MODE,
@@ -24,10 +24,10 @@ class CienaLauncher:
                     "prompt": {"language": LANGUAGE},
                 },
                 "extraction": {
-                    "enable": False,
+                    "enable": True,
                     "prompt": {
                         "language": LANGUAGE,
-                        "cot": True,
+                        "cot": False,
                     },
                 },
                 "self_criticism": {
@@ -44,8 +44,8 @@ class CienaLauncher:
                 },
             },
             "event": {
-                "tag": "hail",
-                "text_en": "hail",
+                "tag": "granizo",
+                "text_es": "granizo",
             },
         }
         return CONFIG
