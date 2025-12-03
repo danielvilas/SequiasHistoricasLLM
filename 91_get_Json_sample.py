@@ -5,10 +5,88 @@ from sequias_historicas.PdfManager import PdfManager
 
 pdfs_to_process = [
     #peridico,ano,mes,dia,pagina,ed
-    ("hoy",1933,3,5,1,"BAD"),  # portada
-    ("hoy",1933,3,5,5,"BAD"), # 6 Columnas,
-    ("hoy",1933,9,3,6,"BAD"), # Sequia
+    ("extremadura",1923,9,18,1,None,True), # portada
+    ("extremadura",1924,6,7,4,None,True), # Sequia
+    ("extremadura",1924,6,7,1,None,False), # Portada
+    ("extremadura",1925,5,14,1,None,True), # Sequia
+    ("extremadura",1926,9,28,5,None,True), # Sequia
+    ("extremadura",1926,9,28,3,None,False), # Tablas
+    ("extremadura",1927,2,8,1,None,False), # Portada
+    ("extremadura",1927,2,8,4,None,False), # Columnas
+    ("extremadura",1928,10,14,1,None,False), # Portada
+    ("extremadura",1928,10,14,3,None,False), # Columnas
+    ("extremadura",1929,4,16,1,None,True), # Sequia
+    ("extremadura",1929,4,16,3,None,False), # Columnas
+    ("extremadura",1930,5,2,1,None,False), # Portada
+    ("extremadura",1930,5,2,4,None,True), # Sequia
+    
+    
+    ("hoy",1933,3,5,1,"BAD",False),  # portada
+    ("hoy",1933,3,5,5,"BAD",False), # 6 Columnas,
+    ("hoy",1933,9,3,6,"BAD", True), # Sequia
 
+    ("hoy",1934,3,15,1,"BAD",False), # Portada
+    ("hoy",1934,3,15,6,"BAD",True), # Sequia
+    ("hoy",1934,3,15,7,"BAD",False), # Imagenes
+    ("hoy",1935,11,0,15,None,False), # portada
+    ("hoy",1935,11,0,9,None,True), # Rogativa
+    ("hoy",1936,1,0,22,None,False), # Fotos
+    ("hoy",1936,1,0,14,None,True), # sequia
+    ("hoy",1937,7,0,23,None,False), # Portada
+    ("hoy",1937,7,0,15,None,False), # Columnas
+    ("hoy",1938,2,0,7,None,False), # Columnas
+    ("hoy",1938,2,0,97,None,False), # Portada
+    ("hoy",1939,9,0,28,None,False), # Portada
+    ("hoy",1939,9,0,16,None,True), # Sequia
+    ("hoy",1940,4,0,19,None,False), # Portada
+    ("hoy",1940,4,0,11,None,False), # Columnas
+    ("hoy",1941,11,15,1,"BAD",False), # Portada
+    ("hoy",1941,11,15,3,"BAD",True), # Sequia
+    ("hoy",1942,10,20,1,"BAD",False), # Portada
+    ("hoy",1942,10,20,7,"BAD",False), # Columnas
+    ("hoy",1943,4,17,6,"CAC",True), # Sequia
+    ("hoy",1943,4,17,1,"CAC",False), # Portada
+    ("hoy",1944,3,5,5,"BAD",False), # Columnas
+    ("hoy",1944,3,5,4,"MER",True), # Rogativa
+    ("hoy",1945,7,18,3,"BAD",False), # Texto Dificil
+    ("hoy",1945,7,18,7,"BAD",True), # Sequia
+    ("hoy",1946,8,18,1,"BAD",False), # Portada
+    ("hoy",1946,8,18,4,"BAD",True), # Sequia
+    ("hoy",1947,5,1,4,"CAC",False), # Anuncios
+    ("hoy",1947,5,1,3,"BAD",True), # Sequia
+    ("hoy",1948,12,1,4,"CAC",False), # Fotos
+    ("hoy",1948,12,1,3,"BAD",True), # Sequia
+    ("hoy",1949,6,15,1,"BAD",False), # Portada
+    ("hoy",1949,6,15,4,"BAD",True), # Sequia
+    ("hoy",1950,9,21,2,"BAD",False), # Columnas
+    ("hoy",1950,9,21,5,"BAD",True), # Sequia
+    ("hoy",1951,1,17,6,"BAD",False), # Fotos
+    ("hoy",1951,1,17,4,"CAC",True), # Sequia
+    ("hoy",1952,11,18,3,"BAD",False), # Tabla
+    ("hoy",1952,11,18,4,"CAC",True), # Sequia
+    ("hoy",1952,11,18,6,"BAD",False), # Anuncio pal Sequia
+    ("hoy",1953,8,30,1,"BAD",False), # Portada
+    ("hoy",1953,8,30,4,"CAC",True), # Sequia
+    ("hoy",1954,3,4,2,"BAD",False), # Columnas y textos cortos
+    ("hoy",1954,3,4,5,"BAD",True), # Sequia
+    ("hoy",1955,10,25,1,"CAC",False), # Portada
+    ("hoy",1955,10,25,2,"BAD",True), # Sequia 
+    ("hoy",1956,2,14,2,"BAD",False), # Columnas
+    ("hoy",1956,2,14,8,"BAD",False), # Nuevo diseño columnas
+    ("hoy",1957,4,25,1,"BAD",False), # Portada
+    ("hoy",1957,4,25,6,"BAD",True), # Sequia (esta mal en el ods, dice 23)
+    ("hoy",1958,11,13,8,"CAC",False), # Columnas
+    ("hoy",1958,11,13,6,"BAD",True), # Sequia 
+    ("hoy",1959,11,13,3,"BAD",False), # Columnas
+    ("hoy",1959,11,13,6,"CAC",True), # Sequia 
+    ("hoy",1960,6,5,3,"BAD",False), # Columnas
+    ("hoy",1960,6,5,1,"CAC",False), # Portada
+    ("hoy",1961,9,20,3,"BAD",False), # Columnas
+    ("hoy",1961,9,20,2,"CAC",True), # Sequia 
+    ("hoy",1962,3,17,3,"BAD",False), # Columnas
+    ("hoy",1962,3,17,9,"BAD",True), # Sequia 
+    ("hoy",1963,10,6,16,"CAC",False), # Columnas
+    ("hoy",1963,10,6,8,"CAC",True), # Sequia 
 ]
 
 pdf_manager = PdfManager()
@@ -19,7 +97,7 @@ def main():
     os.makedirs("data/datasets/json_test/PDF", exist_ok=True)
     os.makedirs("data/datasets/json_test/json", exist_ok=True)
     for pdf in pdfs_to_process:
-        paper, year, month, day, page, ed = pdf
+        paper, year, month, day, page, ed, flag = pdf
         
         text,filepath = pdf_manager.extract_text(paper, year, month, day, page, ed)
         print(f"Text from {paper} {year}-{month}-{day} page {page} ed {ed}\n({filepath}):\n{text[0:min(25,len(text))]}\n{'-'*40}\n")
