@@ -19,27 +19,35 @@ pdfs_to_process = [
     ("extremadura",1929,4,16,3,None,False), # Columnas
     ("extremadura",1930,5,2,1,None,False), # Portada
     ("extremadura",1930,5,2,4,None,True), # Sequia
-    
-    
     ("hoy",1933,3,5,1,"BAD",False),  # portada
     ("hoy",1933,3,5,5,"BAD",False), # 6 Columnas,
     ("hoy",1933,9,3,6,"BAD", True), # Sequia
-
+    ("extremadura",1933,9,12,6,None,True), # Sequia
+    ("extremadura",1933,9,12,7,None,False), # Texto   
     ("hoy",1934,3,15,1,"BAD",False), # Portada
     ("hoy",1934,3,15,6,"BAD",True), # Sequia
     ("hoy",1934,3,15,7,"BAD",False), # Imagenes
+    ("extremadura",1934,11,22,4,None,True), # Sequia
+    ("extremadura",1934,11,22,6,None,False), # Texto
     ("hoy",1935,11,0,15,None,False), # portada
     ("hoy",1935,11,0,9,None,True), # Rogativa
+    ("extremadura",1935,6,10,3,None,False), # Texto
     ("hoy",1936,1,0,22,None,False), # Fotos
     ("hoy",1936,1,0,14,None,True), # sequia
+    ("extremadura",1935,6,10,3,None,False), # Texto
     ("hoy",1937,7,0,23,None,False), # Portada
     ("hoy",1937,7,0,15,None,False), # Columnas
     ("hoy",1938,2,0,7,None,False), # Columnas
     ("hoy",1938,2,0,97,None,False), # Portada
+    ("extremadura",1938,3,25,2,None,True), # Sequia
+    ("extremadura",1938,3,25,1,None,False), # Texto
     ("hoy",1939,9,0,28,None,False), # Portada
     ("hoy",1939,9,0,16,None,True), # Sequia
     ("hoy",1940,4,0,19,None,False), # Portada
     ("hoy",1940,4,0,11,None,False), # Columnas
+    ("extremadura",1940,5,10,2,None,True), # Sequia
+    ("extremadura",1940,5,10,4,None,False), # Texto
+
     ("hoy",1941,11,15,1,"BAD",False), # Portada
     ("hoy",1941,11,15,3,"BAD",True), # Sequia
     ("hoy",1942,10,20,1,"BAD",False), # Portada
