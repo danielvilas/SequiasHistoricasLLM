@@ -11,6 +11,8 @@ models = [
     "fastest-summary",
     "efficient-no-summary",
     "efficient-summary",
+    "bestf1-no-summary",
+    "bestf1-summary",
 ]
 
 def main():

@@ -166,11 +166,14 @@ def main():
         #copy filepath to outfile
         os.system(f"cp '{filepath}' '{outfile}'")
         print(f"Copied PDF to {outfile}\n{'-'*40}\n")
+        date_pub = day
+        if date_pub==0:
+            date_pub=15
         json_data ={"@context": "https://schema.org/",
                     "@type":"NewsArticle",
                     "headline":f"{paper} {year}-{month}-{day} page {page}",
                     "articleBody":text,
-                    "datePublished":f"{year:04}-{month:02}-{day:02}T00:00:00+01:00",
+                    "datePublished":f"{year:04}-{month:02}-{date_pub:02}T00:00:00+01:00",
                     "mainEntityOfPage":{"@id":"https://not-existent.example.com/"},
                 
                     }
