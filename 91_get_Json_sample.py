@@ -3,6 +3,8 @@ import json
 
 from sequias_historicas.PdfManager import PdfManager
 
+import sys
+
 pdfs_to_process = [
     #peridico,ano,mes,dia,pagina,ed
     ("extremadura",1923,9,18,1,None,True), # portada
@@ -142,9 +144,16 @@ pdf_manager = PdfManager()
 
 
 def main():
+
+    if len(sys.argv) == 2:
+        limit = int(sys.argv[1])
+        pdfs_to_process_subset = pdfs_to_process[:limit]
+    else:
+        pdfs_to_process_subset = pdfs_to_process
+
     os.makedirs("data/datasets/json_test/PDF", exist_ok=True)
     os.makedirs("data/datasets/json_test/json", exist_ok=True)
-    for pdf in pdfs_to_process:
+    for pdf in pdfs_to_process_subset:
         paper, year, month, day, page, ed, flag = pdf
         
         text,filepath = pdf_manager.extract_text(paper, year, month, day, page, ed)

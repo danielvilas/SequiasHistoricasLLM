@@ -1,0 +1,139 @@
+event:
+  description_en: News about droughts usually refer to the lack of rain, the decrease
+    in river flows, the decrease in reservoir levels, or the decrease in groundwater.
+  description_es: "Noticias sobre sequ\xEDas suelen hacer referencia a la falta de\
+    \ lluvias, a la disminuci\xF3n de los caudales de los r\xEDos, a la disminuci\xF3\
+    n de los niveles de los embalses o a la disminuci\xF3n de las aguas subterr\xE1\
+    neas."
+  tag: drought
+  text_en: drought
+  text_es: "sequ\xEDa"
+impacts:
+- description_en: News about the impacts of drought on agriculture usually refer to
+    losses in both rainfed and irrigated crops. It is often mentioned that part of
+    the harvest has been lost or will be lost.
+  description_es: "Noticias sobre los impactos de la sequ\xEDa en la agricultura suelen\
+    \ hacer referencia a perdidas en los cultivos tanto de secano como de regad\xED\
+    o. Se suele comentar que se ha perdido o se perder\xE1 una parte de la cosecha."
+  tag: agriculture
+  text_en: agriculture
+  text_es: agricultura
+- description_en: News about the impacts of drought on livestock usually refer to
+    the loss of pastures that feed the livestock. In more extreme droughts, it may
+    be mentioned that there is no water available to give the livestock to drink.
+  description_es: "Noticias sobre los impactos de la sequ\xEDa en la ganader\xEDa\
+    \ suelen hacer referencia a que se han perdido los pastos de los que se alimenta\
+    \ el ganado, en sequ\xEDas m\xE1s extremas pueden hacer referencia a que no se\
+    \ dispone de agua para dar de beber al ganado."
+  tag: livestock
+  text_en: livestock
+  text_es: "ganader\xEDa"
+- description_en: News about the impacts of drought on hydrological resources usually
+    mention the decrease in river flows, reservoir levels, or groundwater. It is also
+    mentioned the lack of water that this causes in the populations, with water cuts
+    being decreed or water not being used for certain uses, or the need to bring water
+    from other locations.
+  description_es: "Noticias sobre los impactos de la sequ\xEDa en los recursos h\xED\
+    dricos suelen hacer menci\xF3n a la disminuci\xF3n de los caudales de los r\xED\
+    os, de los niveles de los embalses o de las aguas subterr\xE1neas. Tambi\xE9n\
+    \ a la falta de agua que esto provoca en las poblaciones, decret\xE1ndose cortes\
+    \ de agua o dejando de usar el agua para ciertos usos, o la necesidad de traer\
+    \ agua de otras localidades."
+  tag: hydrological_resources
+  text_en: hydrological resources
+  text_es: "recursos h\xEDdricos"
+- description_en: News about the impacts of drought on energy usually mention that
+    due to the low flow of rivers or reservoirs, it is not possible to turbine and
+    therefore the generation of hydroelectric energy decreases.
+  description_es: "Noticias sobre los impactos de la sequ\xEDa en la energ\xEDa  suelen\
+    \ mencionar que debido al bajo caudal de r\xEDos o embalses no es posible turbinar\
+    \ y por tanto desciende la generaci\xF3n de energ\xEDa hidroel\xE9ctrica."
+  tag: energy
+  text_en: energy
+  text_es: "energ\xEDa"
+llm:
+  context_length: 32768
+  name: qwen2.5:3b-instruct-q4_K_M
+  num_predict_tokens: 2048
+  seed: 42
+  structured_output_mode: prompt
+  temperature: 0
+output:
+  summary:
+  - article_filename
+  - article_drought
+  - article_impacts
+  - article_locations
+  - article_date
+  - article_url
+  - article_headline
+stages:
+  event_identification:
+    enable: false
+    steps:
+      extraction:
+        enable: true
+        prompt:
+          cot: false
+          language: en
+          step: extraction
+      response_parsing:
+        enable: true
+        prompt:
+          language: en
+          step: response_parsing
+      self_criticism:
+        enable: false
+        prompt:
+          language: en
+          step: self_criticism
+  impact_extraction:
+    enable: true
+    steps:
+      extraction:
+        enable: true
+        prompt:
+          category: description
+          cot: false
+          language: en
+          step: extraction
+      response_parsing:
+        enable: true
+        prompt:
+          language: en
+          step: response_parsing
+      self_criticism:
+        enable: false
+        prompt:
+          language: en
+          step: self_criticism
+  location_extraction:
+    enable: false
+    steps:
+      extraction:
+        enable: true
+        prompt:
+          category: province
+          cot: false
+          language: en
+          step: extraction
+      response_parsing:
+        enable: true
+        prompt:
+          category: province
+          language: en
+          step: response_parsing
+      self_criticism:
+        enable: false
+        prompt:
+          language: en
+          step: self_criticism
+  summarization:
+    enable: false
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en
+          step: summarization
+version: 0.3.0

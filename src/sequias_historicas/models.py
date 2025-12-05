@@ -7,25 +7,41 @@ from typing import Optional
 class LlmModelConfig:
 
     @staticmethod
-    def from_dict(data: dict, default: dict={}) -> 'LlmModelConfig':
+    def from_dict(data: dict) -> 'LlmModelConfig':
         """
         Crea una instancia de LlmModelConfig a partir de un diccionario,
         utilizando valores predeterminados cuando sea necesario.
         """
-        name = data.get('name', default.get('name', 'default_model'))
-        model_name = data.get('model', default.get('model', 'gpt-3.5-turbo'))
-        temperature = data.get('temperature', default.get('temperature', 0.7))
-        max_tokens = data.get('max_new_tokens', default.get('max_new_tokens', 150))
+        name = data.get('name', 'default_model')
+        base = data.get('base', 'gpt-3.5-turbo')
+        overides = data.get('overrides', {})
 
-        return LlmModelConfig(name, model_name, temperature, max_tokens)
+        return LlmModelConfig(name, base, overides)
     """
     Configuración para el modelo de lenguaje.
     """
-    def __init__(self, name: str, model_name: str, temperature: float, max_tokens: int):
+    def __init__(self, name: str, base: str,overides: dict):
         self.name = name
-        self.model_name = model_name
-        self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.base = base
+        self.overides = overides
+        self.config:dict = None
+    
+    def _override_config(self, cfg, overides):
+
+        for key, value in overides.items():
+            if isinstance(value, dict):
+                if key not in cfg:
+                    cfg[key] = value
+                else:
+                    cfg[key] = self._override_config(cfg[key], value)
+            else:
+                cfg[key] = value
+        return cfg
+
+    def load_config(self, config: dict):
+        self.config = config
+        if self.overides:
+            self.config=self._override_config(self.config, self.overides)
 
 class PdfFileInfo:
     def __init__(self, path:str, year:int, 

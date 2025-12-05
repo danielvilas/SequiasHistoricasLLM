@@ -218,4 +218,5 @@ geo_db
 out.txt
 *.png
 data/datasets/json_test/
+data/datasets/work_ds/
 tests

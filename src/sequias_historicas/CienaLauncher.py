@@ -1,54 +1,18 @@
 from ciena_llm import ClimateImpactExtractor
+from .ModelManager import ModelManager
 import time
 import yaml
 import os
 
 class CienaLauncher:
-    def __init__(self):
-        pass
+    def __init__(self, modelManager=None):
+        if modelManager is None:
+            modelManager = ModelManager.load_yaml_config()
+        self.modelManager = modelManager
     
     def _build_config(self,model):
-        LANGUAGE = "es"
-        MODEL = "gemma3:4b"
-        STRUCTURED_OUTPUT_MODE = "prompt"
-
-        CONFIG = {
-            "extraction_task": "event",
-            "llm": {
-                "name": MODEL,
-                "structured_output_mode": STRUCTURED_OUTPUT_MODE,
-            },
-            "steps": {
-                "summarization": {
-                    "enable": True,
-                    "prompt": {"language": LANGUAGE},
-                },
-                "extraction": {
-                    "enable": True,
-                    "prompt": {
-                        "language": LANGUAGE,
-                        "cot": False,
-                    },
-                },
-                "self_criticism": {
-                    "enable": False,
-                    "prompt": {
-                        "language": LANGUAGE,
-                    },
-                },
-                "response_parsing": {
-                    "enable": False,
-                    "prompt": {
-                        "language": LANGUAGE,
-                    },
-                },
-            },
-            "event": {
-                "tag": "drought",
-                "text_es": "sequia",
-            },
-        }
-        return CONFIG
+        model = self.modelManager.get_model_config(model)
+        return model.config
 
     def build_config_file(self, model:str, output_folder:str):
         os.makedirs(output_folder, exist_ok=True)
