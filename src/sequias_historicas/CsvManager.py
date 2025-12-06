@@ -6,6 +6,7 @@ from .PdfManager import PdfManager
 
 import csv
 from alive_progress import alive_bar
+from .PagesManager import PagesManager
 
 import re
 pattern_2_monhts= r'^([a-zA-Z]{3})-([a-zA-Z]{3})_(\d{4}) Pag (\d+)$' #mar-abr_1959 Pag 32
@@ -263,57 +264,149 @@ class CsvManager:
         file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_clean.csv"
         df.to_csv(file_path, index=False)
 
-    def search_page_of_month(self, paper:str, year:int, month:int):
-        # search for the pdf page corresponding to the month in the given paper and year
-        pdf_info = self.pdf_manager.load_pdf_info(paper, year)
-        if pdf_info is None:
-            return None
-        for item in pdf_info:
-            if item['month'] == month:
-                return item['page']
-        return None
+    # def search_page_of_month(self, paper:str, year:int, month:int):
+    #     # search for the pdf page corresponding to the month in the given paper and year
+    #     pdf_info = self.pdf_manager.load_pdf_info(paper, year)
+    #     if pdf_info is None:
+    #         return None
+    #     for item in pdf_info:
+    #         if item['month'] == month:
+    #             return item['page']
+    #     return None
     
-    def _search_2_months_file(self, paper, row, match):
-        year = int(match.group(3))
-        month_1_str = match.group(1).lower()
-        month_2_str = match.group(2).lower()
-        page = int(match.group(4))
+    # def _search_2_months_file(self, paper, row, match):
+    #     year = int(match.group(3))
+    #     month_1_str = match.group(1).lower()
+    #     month_2_str = match.group(2).lower()
+    #     page = int(match.group(4))
 
 
-    def _search_page_alt_file(self, paper, row):
-        pass
+    # def _search_page_alt_file(self, paper, row):
+    #     pass
 
-    def fill_page_locations(self, paper:str, df:pd.DataFrame) -> pd.DataFrame:
-        # fill the pdf_page field if missing, using the month from news_date
+    # def fill_page_locations(self, paper:str, df:pd.DataFrame) -> pd.DataFrame:
+    #     # fill the pdf_page field if missing, using the month from news_date
         
 
-        def fill_page(row):
-            pdf_page = row['pdf_page']
+    #     def fill_page(row):
+    #         pdf_page = row['pdf_page']
 
-            if (isinstance(pdf_page, float) and np.isnan(pdf_page)) or \
-                pdf_page is None or np.nan == pdf_page or pdf_page == '':
-                return {"file":pdf_page, "pattern":"Alt_file"}
-                #return self._search_page_alt_file(paper, row)
+    #         if (isinstance(pdf_page, float) and np.isnan(pdf_page)) or \
+    #             pdf_page is None or np.nan == pdf_page or pdf_page == '':
+    #             return {"file":pdf_page, "pattern":"Alt_file"}
+    #             #return self._search_page_alt_file(paper, row)
 
-            if " EXTREMADURA" in pdf_page:
-                pdf_page = pdf_page.replace(" EXTREMADURA","").strip()
-            if " Extremadura" in pdf_page:
-                pdf_page = pdf_page.replace(" Extremadura","").strip()
+    #         if " EXTREMADURA" in pdf_page:
+    #             pdf_page = pdf_page.replace(" EXTREMADURA","").strip()
+    #         if " Extremadura" in pdf_page:
+    #             pdf_page = pdf_page.replace(" Extremadura","").strip()
 
-            print (f"Checking pdf_page field: {pdf_page}")
-            m = re.match( pattern_2_monhts,pdf_page)
-            if m:
-                return {"file":pdf_page,"pattern":"2_months_file"}
-                #print (f"\tFilling page for row: {pdf_page}")
-            m = re.match( pattern_1_monhts,pdf_page)
-            if m:
-                return {"file":pdf_page,"pattern":"1_months_file"}
-                #print (f"\tFilling page for row: {pdf_page}")
-            m = re.match( pattern_1_monhts_Ed,pdf_page)
-            if m:
-                return {"file":pdf_page,"pattern":"1_months_file_Ed"}
-                #print (f"\tFilling page for row: {pdf_page}")
-            return {"file":pdf_page, "pattern":None}
+    #         print (f"Checking pdf_page field: {pdf_page}")
+    #         m = re.match( pattern_2_monhts,pdf_page)
+    #         if m:
+    #             return {"file":pdf_page,"pattern":"2_months_file"}
+    #             #print (f"\tFilling page for row: {pdf_page}")
+    #         m = re.match( pattern_1_monhts,pdf_page)
+    #         if m:
+    #             return {"file":pdf_page,"pattern":"1_months_file"}
+    #             #print (f"\tFilling page for row: {pdf_page}")
+    #         m = re.match( pattern_1_monhts_Ed,pdf_page)
+    #         if m:
+    #             return {"file":pdf_page,"pattern":"1_months_file_Ed"}
+    #             #print (f"\tFilling page for row: {pdf_page}")
+    #         return {"file":pdf_page, "pattern":None}
 
-        df_file = df.apply(lambda row: pd.Series(fill_page(row)), axis=1)
+    #     df_file = df.apply(lambda row: pd.Series(fill_page(row)), axis=1)
+    #     return df_file
+
+    def _extract_page_number(self, pdf_page:str):
+        if "_Pag" in pdf_page:
+            pdf_page = pdf_page.replace("_Pag"," Pag").strip()
+            
+        if "pag" in pdf_page:
+            pdf_page = pdf_page.replace("pag"," Pag").strip()
+        
+        parts= pdf_page.split(" Pag ")
+        if len(parts) != 2:
+            return None
+
+        name = parts[0].strip()
+        if parts[1].strip().isdigit() == False:
+            return None
+        page_num = int(parts[1].strip())
+        return (name, page_num)
+    
+    def _extract_page_number_pattern(self, pdf_page:str):
+        pattern = r'^(.*)[\s_](\d+)$'
+        match = re.match(pattern, pdf_page)
+        if match:
+            name = match.group(1).strip()
+            page_num = match.group(2).strip()
+            return (name, page_num)
+        return None
+
+    def _search_page_in_page_manager(self, paper:str, row, pages_manager:PagesManager):
+        pdf_page = row['pdf_page']
+        if (isinstance(pdf_page, float) and np.isnan(pdf_page)) or \
+            pdf_page is None or np.nan == pdf_page or pdf_page == '':
+            return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":"no_page_info"}
+        name = None
+        page_num = None
+
+        if "pag" in pdf_page.lower():
+            res = self._extract_page_number(pdf_page)
+        else:
+            res = self._extract_page_number_pattern(pdf_page)
+        
+        if res is not None:
+               name, page_num = res
+        if res is not None:
+            name, page_num = res
+        else:
+            return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":"bad_page_format"}
+        if page_num is None or str(page_num).isdigit() == False:
+            return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":"page_not_digit"}
+        page_num = int(page_num)
+        year = row["year"]
+        info = pages_manager.search_page(name, page_num, year) # primera busqueda
+        
+        #Si no hemos encontrado, probamos variantes
+        if info is None and "_HOY" in name:  # A veces el _HOY esta separado
+            name_alt = name.replace("_HOY"," HOY").strip()
+            info = pages_manager.search_page(name_alt, page_num, year)
+        if info is None and '_' in name:    # A veces es - en vez de _
+            name_alt = name.replace("_","-")
+            info = pages_manager.search_page(name_alt, page_num, year)
+        if info is None and ' HOY' in name:    # A veces es es _HOY
+            name_alt = name.replace(" HOY","_HOY")
+            info = pages_manager.search_page(name_alt, page_num, year)
+        if info is None and paper=="hoy" and "HOY" not in name:  # En el Hoy siempre debe estar el HOY
+            name_alt = name + " HOY"
+            info = pages_manager.search_page(name_alt, page_num, year)
+        if info is None and 'Extremadura' in name: # Varias formas de escribir Extremadura
+            name_alt = name.replace("Extremadura","EXTREMADURA")
+            info = pages_manager.search_page(name_alt, page_num, year)
+        
+        if info is not None:
+            return {"file":pdf_page, "found":True, "img_hash": info.get("img_hash", None),"fail_reason":None}
+        
+        # Ficheros que sabemos que no estan indexados por mes-pagina
+        if paper=="extremadura":
+            if row["year"]in["1954","1955","1957","1944-1945 y 1948-1949","1958","1959"] \
+                    or row["news_date"][-4:] in ["1958","1959"] \
+                    or row["news_date"][-4:] in ["1975","1976",]:  # estas fechas tenemos dias complentos y no mes
+                return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":None}
+
+        return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":"not_found"}
+
+
+    def fill_page_locations(self, paper:str, df:pd.DataFrame, pages_manager:PagesManager) -> pd.DataFrame:
+
+        with alive_bar(len(df), title="Filling page locations") as bar:
+            def fill_page(row):
+                ret= self._search_page_in_page_manager(paper, row, pages_manager)
+                bar()
+                return pd.Series(ret)
+            df_file = df.apply(lambda row: fill_page(row), axis=1)
         return df_file
+    

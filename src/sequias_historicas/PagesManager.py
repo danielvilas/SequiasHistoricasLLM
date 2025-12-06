@@ -11,6 +11,7 @@ class PagesManager:
         self.clean_path = clean_path
         self.paper = paper
         self.df_pages:pd.DataFrame = None
+        self.bad_names = None
         
 
     def load_pages_df(self):
@@ -66,8 +67,11 @@ class PagesManager:
                 else:   
                     day = int(parts[base + 2])
 
-
             file_name = parts[-1]
+            if month is None:
+                mstr= file_name[:3].lower()
+                month= month_map.get(mstr, None)
+            
             if year < 1920 or year > 2020:
                 raise ValueError(f"Year out of range: {year}")
             if month is not None and (month < 1 or month > 12):
@@ -226,4 +230,47 @@ class PagesManager:
                     bar()
         self.df_pages = pd.DataFrame(data)
         return self.df_pages
-                
+    
+    def set_bad_names(self, bad_names:dict):
+        self.bad_names = bad_names
+
+    def search_page(self, file_name:str, page:int, year):
+        in_file_name = file_name
+        if self.df_pages is None:
+            self.load_pages_df()
+        if self.bad_names is not None and file_name in self.bad_names:
+            file_name=self.bad_names[file_name]
+
+        #print(f"Searching for file_name={file_name} (original: {in_file_name}), page={page}, year={year}")
+
+        df_page = self.df_pages[(self.df_pages["file_name"]==f"{file_name}.pdf")]
+        
+        #print(f"Filtered by file_name, found {len(df_page)} entries")
+        df_page = df_page[df_page["page"]==page]
+        #print(f"Filtered by page, found {len(df_page)} entries")
+        #print(df_page)
+        
+        if len(df_page) == 0:
+            return None
+
+        if len(df_page) == 1:
+            return df_page.iloc[0].to_dict()
+
+        if len(df_page) > 1:
+            chk0 = df_page.iloc[0]["img_hash"]
+            if(all(df_page["img_hash"]==chk0)):
+                return df_page.iloc[0].to_dict()
+            #print (f"Multiple entries found, checking img_hash: {chk0}")
+        
+        if year is not None:
+            if not isinstance(year, int):
+                try:
+                    year = int(year)
+                except:
+                    return None
+            df_page_year = df_page[df_page["year"]==int(year)]
+            #print(f"Filtered by year, found {len(df_page_year)} entries")
+            if len(df_page_year) == 1:
+                return df_page_year.iloc[0].to_dict()
+            
+        return None
