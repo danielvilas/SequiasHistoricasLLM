@@ -1,4 +1,4 @@
-from .PdfFilePatterns import patterns
+from .PdfFilePatterns import extract_hoy_codes, patterns, pdf_match_patterns
 from .models import PdfFileInfo
 
 from pypdf import PdfReader, PdfWriter
@@ -12,29 +12,7 @@ from typing import List, Optional
 import shutil
 import os
 
-bad_ends=[
-    " EXTREMADURA.pdf",
-    " EXTREMATURA.pdf",
-    " EXTREMADURAA.pdf",
-    " Extremadura.pdf",
-    " EXTREMADURAAA.pdf",
-    " EXTREMAADURA.pdf",
-    " EXTREMDURA.pdf",
-    
 
-    "  HOY.pdf",
-    " HOY.pdf",
-    "_HOY.pdf",
-    " HOY0.pdf",
-    " HOY_1.pdf",
-    " HOY_2.pdf",
-    "_ 2HOY.pdf",
-    " HOy.pdf",
-    " Hoy.pdf",
-    " hoy.pdf",
-    "_1HOY.pdf",
-    " H0Y.pdf",
-]
 
 ediciones_hoy = ['BAD', 'CAC', 'MER', 'SUP', 'DEP', 'SUB']  # Badajoz, Caceres, Merida, Suplemento, Deportes, Suplemento B
 
@@ -58,45 +36,7 @@ class PdfManager:
 
 
     def _match_patterns(self, line: str, periodico=None, debug=False) -> Optional[PdfFileInfo]:
-        path = line.strip()
-        if debug:
-            print (f"Matching line: {line.strip()}")
-        
-        if line.endswith("19891 HOY.pdf\n"):
-            line = line.replace("19891 HOY.pdf\n","1989.pdf\n")
-
-        if "1er semestre/" in line:
-            line = line.replace("1er semestre/","")
-        if "2o semestre/" in line:
-            line = line.replace("2o semestre/","")
-        if "2do semestre/" in line:
-            line = line.replace("2do semestre/","")
-
-        for bad_end in bad_ends:
-            if line.endswith(bad_end):
-                line = line.replace(bad_end,".pdf\n")
-        if "/julio_" in line:
-            line = line.replace("/julio_","/jul_")
-        if "/junio_" in line:
-            line = line.replace("/junio_","/jun_")
-
-        for pattern in patterns:
-            if debug:
-                print(f"Trying pattern: {pattern['name']}") 
-            match = re.match(pattern['pattern'], line.strip())
-
-            if match:
-                try:
-                    pdf = pattern['callback'](match,path=path)
-                    pdf.periodico = periodico
-                except Exception as e:
-                    print(f"Error processing line: {line.strip()} with pattern: {pattern['name']}") 
-                    raise e
-                
-                pattern['count'] += 1
-                return pdf
-        print(f"No pattern matched for line: {line.strip()}")
-        return None
+        return pdf_match_patterns(line, periodico, debug)
 
     def list_pdfs(self,newspaper="extremadura", year=None) -> List[PdfFileInfo]:
         self._validate_newspaper(newspaper)
@@ -449,33 +389,7 @@ class PdfManager:
         pass
 
     def extract_hoy_codes(self, pdf: PdfFileInfo):
-        filename = pdf.path.split("/")[-1]
-        #print (f"{pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page} : {filename}")
-        
-        pattern = r'(\d{2})(\d{8})([a-zA-Z\d])([a-zA-Z]{3})\.pdf$'
-        match = re.search(pattern, filename)
-        if not match and pdf.year==1993 and pdf.month==5 and pdf.day in [2,24]:
-            # en estos dos dias hay un formato diferente
-            # 4419930502DEPCAC 44 19930502 DEPCAC
-            pattern = r'(\d{2})(\d{8})([a-zA-Z\d]{3})([a-zA-Z]{3})\.pdf$'
-            match = re.search(pattern, filename)
-        if match:
-            day_str = f"{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}"
-            day_fname = match.group(2)
-            if day_str != day_fname:
-                print (f" {pdf.path}  -> MISMATCH in day: {day_str} vs {day_fname}")
-            n_pag = match.group(1)
-            code = match.group(3)
-            prov = match.group(4)
-            return {
-                "code": code,
-                "prov": prov,
-                "n_pag": n_pag,
-                "date_ok": day_str == day_fname,
-            }
-        else:
-            print (f"{filename}  -> NO MATCH")
-        return None
+        return extract_hoy_codes(pdf)
 
 
     def extract_text(self, paper:str, year:int, month:int, day:int, page:int, ed:str=None)-> str:
@@ -493,3 +407,25 @@ class PdfManager:
         else:
             print (f"File NOT found: {filepath}")
             return None,filepath
+    
+    def extract_image(self, paper:str, year:int, month:int, day:int, page:int, ed:str=None)-> bytes:
+        filename = f"{year:04d}{month:02d}{day:02d}_{page:04d}" 
+        if ed:
+            filename += f"_{ed}"
+        filepath =f"./data/datasets/clean/{paper}/{year:04}/{month:02}/{day:02}/{filename}.pdf"
+        if os.path.exists (filepath):
+            reader = PdfReader(filepath)
+            if len(reader.pages)>1:
+                print("Warning: PDF has more than one page, extracting from first page only.")
+            
+            page0 = reader.pages[0]
+            if len(page0.images) >1:
+                print
+                
+            image = page0.images[0]
+            ret=image.data
+
+            reader.stream.close()
+            return ret
+        else:
+            return None,

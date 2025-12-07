@@ -8,6 +8,7 @@ import csv
 from alive_progress import alive_bar
 from .PagesManager import PagesManager
 
+
 import re
 pattern_2_monhts= r'^([a-zA-Z]{3})-([a-zA-Z]{3})_(\d{4}) Pag (\d+)$' #mar-abr_1959 Pag 32
 pattern_1_monhts= r'^([a-zA-Z]{3})_(\d{4})[\s_]Pag (\d+)$' #mar-abr_1959 Pag 32
@@ -388,7 +389,7 @@ class CsvManager:
             info = pages_manager.search_page(name_alt, page_num, year)
         
         if info is not None:
-            return {"file":pdf_page, "found":True, "img_hash": info.get("img_hash", None),"fail_reason":None}
+            return {"file":pdf_page,"raw_file":info.get("file_path", None), "found":True, "img_hash": info.get("img_hash", None),"fail_reason":None}
         
         # Ficheros que sabemos que no estan indexados por mes-pagina
         if paper=="extremadura":
@@ -400,7 +401,7 @@ class CsvManager:
         return {"file":pdf_page, "found":False, "img_hash": None,"fail_reason":"not_found"}
 
 
-    def fill_page_locations(self, paper:str, df:pd.DataFrame, pages_manager:PagesManager) -> pd.DataFrame:
+    def fill_page_locations(self, paper:str, df:pd.DataFrame, pages_manager:PagesManager) -> tuple[pd.DataFrame,pd.DataFrame]:
 
         with alive_bar(len(df), title="Filling page locations") as bar:
             def fill_page(row):
@@ -408,5 +409,40 @@ class CsvManager:
                 bar()
                 return pd.Series(ret)
             df_file = df.apply(lambda row: fill_page(row), axis=1)
-        return df_file
+        
+        df = pd.concat([df, df_file[["img_hash","raw_file"]]], axis=1)
+
+        return df_file,df
     
+    def _search_image_in_page_manager(self, paper:str, row, pages_manager:PagesManager):
+        img_hash = row['img_hash']
+        if (isinstance(img_hash, float) and np.isnan(img_hash)) or \
+            img_hash is None or np.nan == img_hash or img_hash == '':
+            return {"file":img_hash, "found":False, "raw_file": None,"fail_reason":"no_image_info"}
+        
+        info = pages_manager.search_image(paper,img_hash) # primera busqueda
+
+        if info is not None:
+            return {"file":img_hash,"found":True,
+                    "year":info.get("year", None),
+                    "month":info.get("month", None),
+                    "day":info.get("day", None),
+                    "page":info.get("page", None),
+                    "edition":info.get("edition", None),
+                    "clean_file":info.get("clean_file", None),}
+        
+        return {"file":img_hash, "found":False}
+    
+
+    def fill_clean_page_locations(self, paper:str, df:pd.DataFrame, pages_manager:PagesManager) -> tuple[pd.DataFrame,pd.DataFrame]:
+
+        with alive_bar(len(df), title="Filling clean page locations") as bar:
+            def fill_page(row):
+                ret= self._search_image_in_page_manager(paper, row, pages_manager)
+                bar()
+                return pd.Series(ret)
+            df_file = df.apply(lambda row: fill_page(row), axis=1)
+        
+        #df = pd.concat([df, df_file[["img_hash","raw_file"]]], axis=1)
+
+        return df,df_file

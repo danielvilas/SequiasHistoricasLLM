@@ -1,5 +1,6 @@
 from .models import PdfFileInfo
 from typing import Optional
+import re
 
 month_map = {
         'ene': 1, 'feb': 2, 'mar': 3, 'abr': 4,
@@ -355,3 +356,98 @@ patterns = [
     #./[YEAR]/[MONTH_ABBR]_[YEAR]_N.pdf
     {'pattern':r'^\./(\d{4})/([a-zA-Z]{3})[_-](\d{4})(_\d){0,2}\.pdf','callback':cb_month_abbr_hoy,'count':0,'name':'month_abbr_hoy'},
     ]
+
+bad_ends=[
+    " EXTREMADURA.pdf",
+    " EXTREMATURA.pdf",
+    " EXTREMADURAA.pdf",
+    " Extremadura.pdf",
+    " EXTREMADURAAA.pdf",
+    " EXTREMAADURA.pdf",
+    " EXTREMDURA.pdf",
+    
+
+    "  HOY.pdf",
+    " HOY.pdf",
+    "_HOY.pdf",
+    " HOY0.pdf",
+    " HOY_1.pdf",
+    " HOY_2.pdf",
+    "_ 2HOY.pdf",
+    " HOy.pdf",
+    " Hoy.pdf",
+    " hoy.pdf",
+    "_1HOY.pdf",
+    " H0Y.pdf",
+]
+
+def pdf_match_patterns( line: str, periodico=None, debug=False) -> Optional[PdfFileInfo]:
+    path = line.strip()
+    if debug:
+        print (f"Matching line: {line.strip()}")
+    
+    if line.endswith("19891 HOY.pdf\n"):
+        line = line.replace("19891 HOY.pdf\n","1989.pdf\n")
+
+    if "1er semestre/" in line:
+        line = line.replace("1er semestre/","")
+    if "2o semestre/" in line:
+        line = line.replace("2o semestre/","")
+    if "2do semestre/" in line:
+        line = line.replace("2do semestre/","")
+
+    for bad_end in bad_ends:
+        if line.endswith(bad_end):
+            line = line.replace(bad_end,".pdf\n")
+    if "/julio_" in line:
+        line = line.replace("/julio_","/jul_")
+    if "/junio_" in line:
+        line = line.replace("/junio_","/jun_")
+
+    for pattern in patterns:
+        if debug:
+            print(f"Trying pattern: {pattern['name']}") 
+        match = re.match(pattern['pattern'], line.strip())
+
+        if match:
+            try:
+                pdf = pattern['callback'](match,path=path)
+                pdf.periodico = periodico
+            except Exception as e:
+                print(f"Error processing line: {line.strip()} with pattern: {pattern['name']}") 
+                raise e
+            
+            pattern['count'] += 1
+            return pdf
+    if debug:
+        print(f"No pattern matched for line: {line.strip()}")
+    return None
+
+def extract_hoy_codes(pdf: PdfFileInfo):
+    filename = pdf.path.split("/")[-1]
+    #print (f"{pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page} : {filename}")
+    
+    pattern = r'(\d{2})(\d{8})([a-zA-Z\d])([a-zA-Z]{3})\.pdf$'
+    match = re.search(pattern, filename)
+    if not match and pdf.year==1993 and pdf.month==5 and pdf.day in [2,24]:
+        # en estos dos dias hay un formato diferente
+        # 4419930502DEPCAC 44 19930502 DEPCAC
+        pattern = r'(\d{2})(\d{8})([a-zA-Z\d]{3})([a-zA-Z]{3})\.pdf$'
+        match = re.search(pattern, filename)
+    if match:
+        day_str = f"{pdf.year}{str(pdf.month).zfill(2)}{str(pdf.day).zfill(2)}"
+        day_fname = match.group(2)
+        if day_str != day_fname:
+            print (f" {pdf.path}  -> MISMATCH in day: {day_str} vs {day_fname}")
+        n_pag = match.group(1)
+        code = match.group(3)
+        prov = match.group(4)
+        return {
+            "code": code,
+            "prov": prov,
+            "n_pag": n_pag,
+            "date_ok": day_str == day_fname,
+        }
+    # else:
+    #     print (f"{filename}  -> NO MATCH")
+    return None

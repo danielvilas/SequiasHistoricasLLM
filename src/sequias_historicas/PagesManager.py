@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 import re
-from .PdfFilePatterns import month_map
+from .PdfFilePatterns import extract_hoy_codes, month_map, pdf_match_patterns
 
 from alive_progress import alive_bar
 
@@ -273,4 +273,84 @@ class PagesManager:
             if len(df_page_year) == 1:
                 return df_page_year.iloc[0].to_dict()
             
+        return None
+    
+    def _to_img_dict(self, pdf_info, row, img_hash, periodico):
+        page = None
+
+        ed = None
+        ed_info = None
+        if periodico=="hoy":
+            ed_info = extract_hoy_codes(pdf_info)
+            if ed_info is not None:
+                ed = ed_info.get("prov", None)
+                if pdf_info.page is None:
+                    pdf_info.page = int(ed_info.get("n_pag", None))
+        
+        if pdf_info.page is not None:
+            #print("Using page from pdf_info")
+            page = pdf_info.page
+        else:
+            #print("Using page from row")
+            page = row["page"]
+        #print(row)
+
+        
+        return {"img_hash": img_hash,
+                "paper:": periodico,
+                "year": pdf_info.year,
+                "month": pdf_info.month,
+                "day": pdf_info.day,
+                "page": page,
+                "edition": ed,
+                "clean_file": row["file_name"]
+                }
+    
+    def _all_img_same(self, canditatos):
+        chk =f"{canditatos[0]['year']}-{canditatos[0]['month']}-{canditatos[0]['day']}-P{canditatos[0]['page']}"
+        for c in canditatos:
+            cand = f"{c['year']}-{c['month']}-{c['day']}-P{c['page']}"
+            if cand != chk:
+                return False
+        return True
+    
+    def search_image(self, periodico, img_hash:str):
+        if self.df_pages is None:
+            self.load_pages_df()
+        
+        df_img = self.df_pages[self.df_pages["img_hash"]==img_hash]
+        
+        #print(df_img)
+        if len(df_img) == 0:
+            return None
+        
+        canditatos = []
+        for _, row in df_img.iterrows():
+            pdf_info =  pdf_match_patterns("./"+row["file_path"], periodico, False)
+            if pdf_info is not None:
+                c = self._to_img_dict(pdf_info, row, row["img_hash"], periodico)
+                if c["day"] is not None:
+                    canditatos.append(c)
+        
+        #print(canditatos)
+        if len(canditatos) == 0:
+            # Agrupados por mes (ignorando dia)
+            for _, row in df_img.iterrows():
+                pdf_info =  pdf_match_patterns("./"+row["file_path"], periodico, False)
+                if pdf_info is not None:
+                    c = self._to_img_dict(pdf_info, row, row["img_hash"], periodico)
+                    if c["day"] is None:
+                        c["day"] = 0 
+                        canditatos.append(c)
+        if  len(canditatos) == 0:
+            return None
+        if len(canditatos) == 1:
+            return canditatos[0]
+        if self._all_img_same(canditatos):
+            return canditatos[0]
+        
+        
+
+
+        
         return None
