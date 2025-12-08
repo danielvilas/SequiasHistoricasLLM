@@ -6,7 +6,7 @@ from sequias_historicas.PagesManager import PagesManager
 
 import os
 import pandas as pd
-
+import numpy as np
 
 import logging
 
@@ -98,7 +98,9 @@ def fill_clean_locations(paper_name, loc_df, pages_manager):
     test_df = test_df.dropna(subset=["file"], how="any")
     print (f" Number of records with no PDF found and file is not empty: {len(test_df)}")
     print(test_df.head(10))
-
+    found= pdf_clean_loc_df[pdf_clean_loc_df["found"]==True]
+    print (f"Number of records with PDF found: {len(found)} out of {len(pdf_clean_loc_df)}")
+    print(f" Number of records with correct image hash: {len(found[found['hash_matches']==True])} out of {len(found)}")
     return loc_df, pdf_clean_loc_df
 
 def process_paper(paper_name):
@@ -128,6 +130,7 @@ def process_paper(paper_name):
         loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv")
     else:
         loc_df, pdf_clean_loc_df = fill_clean_locations(paper_name, loc_df, pages_manager)
+        
 
 def check_img_same(paper_name, index):
     df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv")
@@ -138,32 +141,27 @@ def check_img_same(paper_name, index):
     day = int(reg["day"]) 
     page = int(reg["page"])
     edition = reg.get("edition", None)
-    img = pdf_manager.extract_image(paper_name, year, month, day, page, edition)
-    if img is None:
-        print("No image found")
-        return
-    print (len(img))
-    print(md5(img,usedforsecurity=False).hexdigest())
-    print(reg["file"])
-    with open ("temp_img.jpg","wb") as f:
-        f.write(img)
-    
-
-
-
+    hash_expected = reg["file"]
+    if edition is not None and (isinstance(edition, float) and np.isnan(edition)):
+        edition = None
+    res_ok = pdf_manager.check_image_hash_tool(hash_expected,paper_name, year, month, day, page, edition)
+    if res_ok:
+        print(f"Image at index {index} matches expected hash.")
+    else:
+        print(f"Image at index {index} does NOT match expected hash.")
 
 def main():
     #csv_manager._get_location("Cáceres, España")
     #res =   geoLocator.search_unidad_adm("Extremadura")
     #print(res.data[0]["latitud"], res.data[0]["longitud"])
     print("-----")
-    #process_paper("extremadura")
+    process_paper("extremadura")
     print("-----")
-    #process_paper("hoy")
-    # print("-----")
+    process_paper("hoy")
+    print("-----")
     #test_location("hoy","sep_1958 Pag 308","1958")
     #test_location_2("hoy", 600)
-    check_img_same("hoy", 0)
+    #check_img_same("extremadura", 0)
     
 def test_regex():
     import re

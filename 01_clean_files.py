@@ -77,11 +77,8 @@ def s03_copy_files(pdfs: List[PdfFileInfo],df: pd.DataFrame):
     # Meses que tienen solo el mes
     pdf_manager.extract_pages_from_monthly_pdfs(pdfs, df,'OnlyMonthPdfs') # G6 doc
 
-    #PDTe ver que hacemos con los siguientes grupos
-    # Meses solo con el mes
-    #pdf_manager.extract_pages_from_monthly_pdfs(pdfs, df,'OnlyMonthPdfs') # G6 doc
     # Meses inchorentes
-    #pdf_manager.extract_pages_from_????(pdfs, df,'other') # G7 doc
+    pdf_manager.extract_pages_from_daily_pdfs(pdfs, df,'other') # G7 doc
 
 
 def main():
