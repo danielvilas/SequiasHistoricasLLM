@@ -90,7 +90,8 @@ def fill_clean_locations(paper_name, loc_df, pages_manager):
     loc_df, pdf_clean_loc_df = csv_manager.fill_clean_page_locations(paper_name, loc_df, pages_manager=pages_manager)
 
     pdf_clean_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv", index=False)
-
+    loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv", index=False)    
+    
     test_df = pdf_clean_loc_df[pdf_clean_loc_df["found"]==False]
     print (f"Number of records with no PDF found: {len(test_df)} out of {len(pdf_clean_loc_df)}")
     print (f" File is empty for {len(test_df[test_df['file'].isnull()])} records.")
@@ -128,9 +129,10 @@ def process_paper(paper_name):
     if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv"):
         print (f"PDF locations CSV already exists for paper {paper_name}, skipping PDF location step.")
         loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv")
+        pdf_clean_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv") 
     else:
         loc_df, pdf_clean_loc_df = fill_clean_locations(paper_name, loc_df, pages_manager)
-        
+    
 
 def check_img_same(paper_name, index):
     df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv")

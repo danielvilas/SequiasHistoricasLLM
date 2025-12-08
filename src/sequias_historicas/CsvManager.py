@@ -444,26 +444,31 @@ class CsvManager:
             df_file = df.apply(lambda row: fill_page(row), axis=1)
         
         df_file = self.check_image_hashes(paper, df_file, pages_manager)
-
-        #df = pd.concat([df, df_file[["img_hash","raw_file"]]], axis=1)
+        columns_to_add = ["year","month","day","page","edition","clean_file","hash_matches"]
+        df = pd.concat([df, df_file[columns_to_add]], axis=1)
 
         return df,df_file
     
+    def _check_image_tool(self,row,paper):
+        hash_expected = row['file']
+        if (isinstance(hash_expected, float) and np.isnan(hash_expected)) or \
+            hash_expected is None or np.nan == hash_expected or hash_expected == '':
+            
+            return False
+        year = int(row["year"])
+        month = int(row["month"])
+        day = int(row["day"])
+        page = int(row["page"])
+        edition = row.get("edition", None)
+        if edition is not None and (isinstance(edition, float) and np.isnan(edition)):
+            edition = None
+        
+        return self.pdf_manager.check_image_hash_tool(hash_expected,paper, year, month, day, page, edition)
+                
     def check_image_hashes(self, paper:str, df:pd.DataFrame, pages_manager:PagesManager) -> pd.DataFrame:
         with alive_bar(len(df), title="Checking image hashes") as bar:
             def check_image(row):
-                hash_expected = row['file']
-                if (isinstance(hash_expected, float) and np.isnan(hash_expected)) or \
-                    hash_expected is None or np.nan == hash_expected or hash_expected == '':
-                    return False
-                year = int(row["year"])
-                month = int(row["month"])
-                day = int(row["day"])
-                page = int(row["page"])
-                edition = row.get("edition", None)
-                if edition is not None and (isinstance(edition, float) and np.isnan(edition)):
-                    edition = None
-                res_ok = self.pdf_manager.check_image_hash_tool(hash_expected,paper, year, month, day, page, edition)
+                res_ok = self._check_image_tool(row, paper)
                 bar()
                 return res_ok
             df['hash_matches'] = df.apply(lambda row: check_image(row), axis=1)
