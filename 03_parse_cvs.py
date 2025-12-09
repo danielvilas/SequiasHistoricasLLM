@@ -133,6 +133,9 @@ def process_paper(paper_name):
     else:
         loc_df, pdf_clean_loc_df = fill_clean_locations(paper_name, loc_df, pages_manager)
     
+    csv_manager.save_full_csv(loc_df, paper_name)
+    
+    
 
 def check_img_same(paper_name, index):
     df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv")

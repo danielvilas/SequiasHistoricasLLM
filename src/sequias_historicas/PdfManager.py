@@ -436,7 +436,7 @@ class PdfManager:
             print(cmd)
             print(tool.stderr)
             print(tool.stdout)            
-            exit(1)
+            #exit(1)
             return False
         hash_real= None
 
