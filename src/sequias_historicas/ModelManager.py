@@ -41,7 +41,7 @@ class ModelManager:
         cfg  = self.model_config[name]
         
         if cfg.config is None:
-            file =f"{self.data_path}/{cfg.base}.config.yaml"
+            file =f"{self.data_path}/models/{cfg.base}.config.yaml"
             with open(file, 'r') as f:
                 config = yaml.safe_load(f)
             cfg.load_config(config)

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+    <meta charset="UTF-8">
+<head>
+    <title>Detección de Sequías</title>
+</head>
+<body>
+    <ul id="navigation">
+    {% for item in navigation %}
+        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h1>Detección de Sequías</h1>
+    <h2>Resumen</h2>
+    <h3>Accuracy de los Modelos</h3>
+    {{ accuracy_table | safe }}
+    <h3>F1-Score de los Modelos</h3>
+    {{ f1_score_table | safe }}
+    
+
+    {% for model in results %}
+        <h2>Modelo: {{ model.test_name }}</h2>
+        <h3>Métricas Detalladas</h3>
+        <ul>
+            <li><b>Accuracy:</b> {{ model.accuracy }}</li>
+            <li><b>Precision:</b> {{ model.precision }}</li>
+            <li><b>Recall:</b> {{ model.recall }}</li>
+            <li><b>F1-Score:</b> {{ model.f1_score }}</li>
+        </ul>
+        <img src="data:image/png;base64,{{ model.cm_image }}" alt="Confusion Matrix">
+    {% endfor %}
+</body>
+</html>

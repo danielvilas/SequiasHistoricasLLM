@@ -57,3 +57,17 @@ models:
       steps:
         summarization:
           enable: true
+
+  - name: detect-gemma3-no-summary
+    base: detect-fastest
+    overrides:
+      llm:
+        name: gemma3:4b
+  - name: detect-gemma3-summary
+    base: detect-fastest
+    overrides:
+      llm:
+        name: gemma3:4b
+      steps:
+        summarization:
+          enable: true
