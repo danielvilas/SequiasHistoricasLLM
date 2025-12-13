@@ -219,6 +219,8 @@ out.txt
 *.png
 data/datasets/json_test/
 data/datasets/work_ds/
+data/datasets/test_ds/
 tests
+results
 tmp
 test.tar

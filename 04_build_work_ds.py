@@ -49,6 +49,10 @@ def build(folder, year):
     work_ds_df = pd.read_csv(f"data/work_ds.csv")
     work_ds_df = work_ds_df[work_ds_df["year"]>=year]
     work_ds_path=f"data/datasets/work_ds/{folder}"
+
+    if folder=="classify":
+        work_ds_df = work_ds_df[work_ds_df["has_sequia"]==True]
+        
     if os.path.exists(work_ds_path):
         shutil.rmtree(work_ds_path)
     os.makedirs(work_ds_path, exist_ok=True)
@@ -74,14 +78,18 @@ def build(folder, year):
 
 def main():
     year = 1922
-    folder = "complete"
+    folder = "detect"
     if len(sys.argv) == 3:
         year = int(sys.argv[2])
         folder = sys.argv[1]
     elif len(sys.argv) == 2:
         folder = sys.argv[1]
     else:
-        print("Usage: python script.py <folder> [year]")
+        print("Usage: python script.py [detect|classify] [year]")
+        sys.exit(1)
+
+    if folder not in ["detect", "classify"]:
+        print("Folder must be 'detect' or 'classify'")
         sys.exit(1)
     build(folder, year)
 

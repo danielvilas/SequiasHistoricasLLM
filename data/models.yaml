@@ -5,30 +5,55 @@ fastest:
 #  qwen_3b DESC
 
 models:    
-  - name: fastest-no-summary
-    base: fastest
-  - name: fastest-summary
-    base: fastest
+# Modelos para Clasificacion
+  - name: classify-fastest-no-summary
+    base: classify-fastest
+  - name: classify-fastest-summary
+    base: classify-fastest
     overrides:
       steps:
         summarization:
           enable: true
   
-  - name: efficient-no-summary
-    base: efficient
-  - name: efficient-summary
-    base: efficient
+  - name: classify-efficient-no-summary
+    base: classify-efficient
+  - name: classify-efficient-summary
+    base: classify-efficient
     overrides:
       steps:
         summarization:
           enable: true
   
-  - name: bestf1-no-summary
-    base: bestf1
-  - name: bestf1-summary
-    base: bestf1
+  - name: classify-bestf1-no-summary
+    base: classify-bestf1
+  - name: classify-bestf1-summary
+    base: classify-bestf1
     overrides:
       steps:
         summarization:
           enable: true
-  
+#Modelos para deteccion
+  - name: detect-fastest-no-summary
+    base: detect-fastest
+  - name: detect-fastest-summary
+    base: detect-fastest
+    overrides:
+      steps:
+        summarization:
+          enable: true
+  - name: detect-efficient-no-summary
+    base: detect-efficient
+  - name: detect-efficient-summary
+    base: detect-efficient
+    overrides:
+      steps:
+        summarization:
+          enable: true
+  - name: detect-bestf1-no-summary
+    base: detect-bestf1
+  - name: detect-bestf1-summary
+    base: detect-bestf1
+    overrides:
+      steps:
+        summarization:
+          enable: true
