@@ -15,9 +15,13 @@
     <h2>Resumen</h2>
     <h3>Accuracy de los Modelos</h3>
     {{ accuracy_table | safe }}
+
+    <img src="data:image/png;base64,{{ accuracy_chart }}" alt="Accuracy Chart">
+       
     <h3>F1-Score de los Modelos</h3>
     {{ f1_score_table | safe }}
     
+    <img src="data:image/png;base64,{{ f1_score_chart }}" alt="Accuracy Chart">
 
     {% for model in results %}
     <div style="border-width: 2px; border-color: black; border-style: solid;"> 

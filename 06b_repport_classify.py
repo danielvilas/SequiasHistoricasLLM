@@ -15,6 +15,7 @@ import io
 import base64
 
 from matplotlib import pyplot as plt
+import numpy as np
 
 tipo_agro="agrocultura"
 tipo_ganaderia="ganaderia"
@@ -173,12 +174,53 @@ def generate_reports(real_ds, dataset, test_name):
 def build_table(data, key):
     table = {}
     for row in data:
-        model = row['test_name'].split('-')[0]
-        mode = row['test_name'].replace(f'{model}-','')
-        if model not in table:
-            table[model] = {'model': model}
-        table[model][mode] = row[key]
+        # model = row['test_name'].split('-')[0]
+        # mode = row['test_name'].replace(f'{model}-','')
+        # if model not in table:
+        #     table[model] = {'model': model}
+        # table[model][mode] = row[key]
+        name = row['test_name']
+        table[name] = {"model":name,"global": row[key]}
+        for tipo in tipos:
+            table[name][tipo] = row['tipos_info'][tipo][key]
+
     return pd.DataFrame.from_dict(table, orient='index')
+
+def build_bar_chart(df, name):
+    groups = df.columns[1:].to_list()
+
+    x = np.arange(len(groups))  # the label locations
+    #display(x)
+    width = 0.15  # the width of the bars
+    multiplier = 0
+
+    columns = df["model"].to_list()
+    #display(columns)
+
+    fig, ax = plt.subplots(layout='constrained')
+
+    for c in columns:
+        #display(c)
+        measurement=df[df["model"]==c].iloc[0][groups]
+        #display(measurement)
+
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=c)
+        #ax.bar_label(rects, padding=3)
+        multiplier += 1
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(name)
+    ax.set_title(f'{name} por Tipos de Sequia')
+    ax.set_xticks(x + width*2, groups)
+    fig.legend(loc='outside lower center', ncols=3)
+    ax.set_ylim(0, 1)
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    return b64_img
 
 def main():
     if len(sys.argv) != 2:
@@ -218,7 +260,9 @@ def main():
         dataset=dataset,
         accuracy_table=df_acc.to_html(index=False, float_format="{:.2f}".format),
         f1_score_table=df_f1.to_html(index=False, float_format="{:.2f}".format),
-        results=data
+        results=data,
+        accuracy_chart=build_bar_chart(df_acc, "Accuracy"),
+        f1_score_chart=build_bar_chart(df_f1, "F1-Score"),
     )
 
     with open(f"results/{dataset}/classify/report.html", "w") as f:
