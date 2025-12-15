@@ -14,6 +14,8 @@ import jinja2
 import io
 import base64
 
+from matplotlib import pyplot as plt
+
 def build_ds_compare(real_ds, pred_ds): 
     with alive_bar(len(pred_ds), title=f'Building comparison dataset') as bar:
         merged = []
@@ -55,9 +57,10 @@ def generate_reports(real_ds, dataset, test_name):
     # Make confusion matrix
     cm = confusion_matrix(df['real_sequia'], df['pred_sequia'],labels=[True, False])
     print("Confusion Matrix:")
-    print(cm) 
+    print(cm)
+    fig, ax = plt.subplots(figsize=(5, 2.5))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Drought', 'No Drought'])
-    disp.plot()
+    disp.plot(ax=ax)
     #save to memory
     buf = io.BytesIO()
     disp.figure_.savefig(buf, format='png')
