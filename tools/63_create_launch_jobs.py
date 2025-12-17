@@ -57,6 +57,6 @@ for task in tasks:
                                    llm=params[config]["llm"],
                                    cpus=64,
                                    time=params[config]["time"],
-                                   gpu="gpu:a100:$SLURM_GPUS"
+                                   gpu="gpu:a100:2"
                                   ))
             
