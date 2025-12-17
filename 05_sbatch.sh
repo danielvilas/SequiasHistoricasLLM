@@ -9,7 +9,7 @@
 alias poetry="$HOME/.local/bin/poetry"
 
 cd $HOME/SequiasHistoricasLLM/
-
+mkdir -p $RESULTS_DIR
 echo $SLURM_JOBID >$RESULTS_DIR/slurm.id
 
 
