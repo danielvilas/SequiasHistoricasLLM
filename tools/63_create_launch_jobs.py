@@ -22,7 +22,7 @@ params={
 }
 
 template = '''
-export RESULTS_DIR={job_path}/slurm
+export RESULTS_DIR=$(pwd)/{job_path}/slurm
 export CIENA_LLM_MODEL={llm}
 export SH_MODEL="{config}"
 export SH_DATASET="{ds}"
