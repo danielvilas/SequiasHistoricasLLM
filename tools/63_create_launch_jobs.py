@@ -28,7 +28,7 @@ export SH_MODEL="{config}"
 export SH_DATASET="{ds}"
 export SH_TASK="{task}"
 
-echo sbatch \
+sbatch \
 -J sh_{config}_{task} \
 -t {time} \
 -o $RESULTS_DIR/slurm.out \
@@ -37,7 +37,6 @@ echo sbatch \
 --gres={gpu} \
 $(pwd)/05_sbatch.sh
 
-sh 05_sbatch.sh
 '''
 
 for task in tasks:

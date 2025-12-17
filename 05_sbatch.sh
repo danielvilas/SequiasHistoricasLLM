@@ -95,7 +95,7 @@ EOF
 
 # Run the test
 experiment_start_t=$(date +%s)
-echo poetry run python 05_launch_ciena.py $SH_DATASET $SH_MODEL $SH_TASK
+poetry run python 05_launch_ciena.py $SH_DATASET $SH_MODEL $SH_TASK
 
 experiment_end_t=$(date +%s)
 echo "Experiment Execution Time (SLURM): $(expr $experiment_end_t - $experiment_start_t) s."
