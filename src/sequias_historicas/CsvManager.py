@@ -105,10 +105,11 @@ class CsvManager:
         bad_starts=[]
         # read the csv line by line
         with open(file_path, "r") as f:
-            reader = csv.reader(f, delimiter=",")
+            reader = csv.reader(f, delimiter=";")
             for i, line in enumerate(reader):
                 if i == 0:
                     continue  # skip header
+                #print(line)
                 
                 if line[0] in ["C","S","C y S"]:
                     # skip bad lines
@@ -266,19 +267,11 @@ class CsvManager:
         file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_clean.csv"
         df.to_csv(file_path, index=False)
 
-    def save_full_csv(self, df:pd.DataFrame, paper:str):
-        file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_full.csv"
-        df.to_csv(file_path, index=False)
-
     def load_clean_csv(self, paper:str) -> pd.DataFrame:
         file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_clean.csv"
         df = pd.read_csv(file_path)
         return df
-    
-    def load_full_csv(self, paper:str) -> pd.DataFrame:
-        file_path = f"{self.pdf_clean_path}/{paper}/{paper}_impactos_full.csv"
-        df = pd.read_csv(file_path)
-        return df
+
 
     def _extract_page_number(self, pdf_page:str):
         if "_Pag" in pdf_page:

@@ -41,7 +41,7 @@ def locate_raw_csv(paper_name, raw_df):
     no_loc = loc_df[loc_df["latitud"].isnull()]
     no_loc_unic = no_loc["ubicacion"].unique()
     print (f"Locations not found ({len(no_loc_unic)}): {no_loc_unic}")
-    csv_manager.save_clean_csv(loc_df, paper_name)
+    #csv_manager.save_clean_csv(loc_df, paper_name)
     return loc_df
 
 def test_location(paper_name, location,year):
@@ -73,7 +73,6 @@ def test_location_2(paper_name, index):
 
 def fill_raw_locations(paper_name, loc_df, pages_manager):
     pdf_df, loc_df = csv_manager.fill_page_locations(paper_name, loc_df, pages_manager=pages_manager)  
-    pdf_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_locations.csv", index=False)
     pdf_df_return = pdf_df.copy()
     print (f"Number of records with no PDF found: {len(pdf_df[pdf_df['found']==False])} out of {len(pdf_df)}")
     print (f" File is empty for {len(pdf_df[pdf_df['file'].isnull()])} records.")
@@ -83,14 +82,13 @@ def fill_raw_locations(paper_name, loc_df, pages_manager):
     pdf_df = pdf_df.dropna(subset=["file","fail_reason"], how="any")
     print(pdf_df.head(10))
 
-    loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_rawlocations.csv", index=False)
     return loc_df, pdf_df_return
 
 def fill_clean_locations(paper_name, loc_df, pages_manager):
     loc_df, pdf_clean_loc_df = csv_manager.fill_clean_page_locations(paper_name, loc_df, pages_manager=pages_manager)
 
-    pdf_clean_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv", index=False)
-    loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv", index=False)    
+    #pdf_clean_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv", index=False)
+    #loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv", index=False)    
     
     test_df = pdf_clean_loc_df[pdf_clean_loc_df["found"]==False]
     print (f"Number of records with no PDF found: {len(test_df)} out of {len(pdf_clean_loc_df)}")
@@ -107,33 +105,44 @@ def fill_clean_locations(paper_name, loc_df, pages_manager):
 def process_paper(paper_name):
     print(f"Processing paper: {paper_name}")
     raw_df = csv_manager.read_raw_csv(paper_name)
-    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean.csv"):
+
+    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv"):
         print (f"Clean CSV already exists for paper {paper_name}, skipping location step.")
-        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean.csv")
+        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv")
     else:
         #raw_df =raw_df[0:10] 
         loc_df = locate_raw_csv(paper_name, raw_df)
-        csv_manager.save_clean_csv(loc_df, paper_name)
-
+        loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv", index=False)
+    
     pages_manager = PagesManager(paper=paper_name)
     pages_df=pages_manager.load_pages_df()
     pages_manager.set_bad_names(bad_names.get(paper_name, {}))
 
-    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_rawlocations.csv"):
+    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_01_raw_loc.csv"):
         print (f"PDF locations CSV already exists for paper {paper_name}, skipping PDF location step.")
-        pdf_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_locations.csv")
-        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_rawlocations.csv")
+
+        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv")
+        raw_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_01_raw_loc.csv")
+        pdf_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_pdf_01_locations.csv")
     else:
-        loc_df, pdf_loc_df = fill_raw_locations(paper_name, loc_df, pages_manager)
-    
-    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv"):
+        raw_loc_df, pdf_loc_df = fill_raw_locations(paper_name, loc_df, pages_manager)
+        raw_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_01_raw_loc.csv", index=False)
+        pdf_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_pdf_01_locations.csv", index=False)
+
+
+    if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_02_clean_loc.csv"):
         print (f"PDF locations CSV already exists for paper {paper_name}, skipping PDF location step.")
-        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_clean_cleanlocations.csv")
-        pdf_clean_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_pdf_clean_locations.csv") 
+        loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv")
+        raw_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_01_raw_loc.csv")
+        pdf_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_pdf_01_locations.csv")
+        clean_loc_df= pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_02_clean_loc.csv")
+        pdf_clean_loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_pdf_02_clean_locations.csv")   
     else:
-        loc_df, pdf_clean_loc_df = fill_clean_locations(paper_name, loc_df, pages_manager)
+        clean_loc_df, pdf_clean_loc_df = fill_clean_locations(paper_name, raw_loc_df, pages_manager)
+        clean_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_02_clean_loc.csv", index=False)
+        pdf_clean_loc_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_pdf_02_clean_locations.csv", index=False)
     
-    csv_manager.save_full_csv(loc_df, paper_name)
+    csv_manager.save_clean_csv(clean_loc_df, paper_name)
     
     
 

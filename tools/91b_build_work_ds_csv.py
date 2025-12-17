@@ -142,7 +142,7 @@ pdfs_to_process = [
 ]
 
 cvs_manager=CsvManager()
-dfs={"extremadura":cvs_manager.load_full_csv("extremadura"), "hoy":cvs_manager.load_full_csv("hoy")}
+dfs={"extremadura":cvs_manager.load_clean_csv("extremadura"), "hoy":cvs_manager.load_clean_csv("hoy")}
 
 def _search_manual_pdf(paper, year, month, day, page, pdf, ed):
     df = dfs[paper]
