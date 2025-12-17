@@ -7,6 +7,8 @@ import os
 from sequias_historicas.CienaLauncher import CienaLauncher
 
 def run_test(ds, model, task):
+    print("--------------------------------")
+    print (f"Running Ciena model '{model}' on dataset '{ds}' for task '{task}'")
     ciena = CienaLauncher()
     
     output_folder = f"./results/{ds}/{task}/{model}/"
