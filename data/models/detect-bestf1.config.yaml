@@ -25,7 +25,6 @@ steps:
     enable: True
     prompt:
       language: en
-      category: description
       cot: True
   self_criticism:
     enable: False
