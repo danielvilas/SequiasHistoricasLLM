@@ -6,7 +6,7 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=dvilas@csic.es
 
-alias poetry="$HOME/.local/bin/poetry"
+#alias poetry="$HOME/.local/bin/poetry"
 
 cd $HOME/SequiasHistoricasLLM/
 mkdir -p $RESULTS_DIR
@@ -95,7 +95,7 @@ EOF
 
 # Run the test
 experiment_start_t=$(date +%s)
-poetry run python 05_launch_ciena.py $SH_DATASET $SH_MODEL $SH_TASK
+$HOME/.local/bin/poetry run python 05_launch_ciena.py $SH_DATASET $SH_MODEL $SH_TASK
 
 experiment_end_t=$(date +%s)
 echo "Experiment Execution Time (SLURM): $(expr $experiment_end_t - $experiment_start_t) s."
