@@ -16,6 +16,11 @@ import base64
 
 from matplotlib import pyplot as plt
 
+ciena_tvii={"bestf1":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
+            "efficient":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
+            "fastest":{"accuracy":0.792,"precision":0.880,"recall":0.698,"f1_score":0.779}
+            }
+
 def build_ds_compare(real_ds, pred_ds): 
     with alive_bar(len(pred_ds), title=f'Building comparison dataset') as bar:
         merged = []
@@ -86,12 +91,19 @@ def generate_reports(real_ds, dataset, test_name):
 
 def build_table(data, key):
     table = {}
+    models =[]
     for row in data:
         model = row['test_name'].split('-')[0]
         mode = row['test_name'].replace(f'{model}-','')
         if model not in table:
             table[model] = {'model': model}
         table[model][mode] = row[key]
+        if model not in models:
+            models.append(model)
+    for model in models:
+        if model not in ciena_tvii:
+            continue
+        table[model]["ciena"] = ciena_tvii[model][key]
     return pd.DataFrame.from_dict(table, orient='index')
 
 def main():
@@ -131,7 +143,7 @@ def main():
         results=data
     )
 
-    with open(f"results/{dataset}/detect/report.html", "w") as f:
+    with open(f"results/{dataset}/detect/report-detect.html", "w") as f:
         f.write(output)
 
 if __name__ == "__main__":

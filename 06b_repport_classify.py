@@ -265,7 +265,7 @@ def main():
         f1_score_chart=build_bar_chart(df_f1, "F1-Score"),
     )
 
-    with open(f"results/{dataset}/classify/report.html", "w") as f:
+    with open(f"results/{dataset}/classify/report-classify.html", "w") as f:
         f.write(output)
 
 if __name__ == "__main__":

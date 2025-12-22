@@ -58,6 +58,8 @@ models:
         summarization:
           enable: true
 
+# modelos extra de deteccion
+  #gemma3
   - name: detect-gemma3-no-summary
     base: detect-fastest
     overrides:
@@ -68,6 +70,34 @@ models:
     overrides:
       llm:
         name: gemma3:4b
+      steps:
+        summarization:
+          enable: true
+  #qwen3 
+  - name: detect-qwen3-no-summary
+    base: detect-efficient
+    overrides:
+      llm:
+        name: qwen3:8b
+  - name: detect-qwen3-summary
+    base: detect-efficient
+    overrides:
+      llm:
+        name: qwen3:8b
+      steps:
+        summarization:
+          enable: true
+  #deepseek
+  - name: detect-deepseek-no-summary
+    base: detect-efficient
+    overrides:
+      llm:
+        name: deepseek-r1:8b
+  - name: detect-deepseek-summary
+    base: detect-efficient
+    overrides:
+      llm:
+        name: deepseek-r1:8b
       steps:
         summarization:
           enable: true
