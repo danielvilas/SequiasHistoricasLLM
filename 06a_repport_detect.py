@@ -38,11 +38,14 @@ def build_ds_compare(real_ds, pred_ds):
                 row_sequia = ast.literal_eval(row_sequia)
             else:
                 row_sequia = json.loads(row_sequia)
+            pred_sequia = row_sequia.get('drought', False)
+            if pred_sequia is None:
+                pred_sequia = False
             #print (row_sequia)
             merged.append({
                 'file_name': file_name,
                 'real_sequia': real_sequia,
-                'pred_sequia': row_sequia["drought"]
+                'pred_sequia': pred_sequia
             })
             bar()
     return pd.DataFrame(merged)
@@ -60,6 +63,8 @@ def generate_reports(real_ds, dataset, test_name):
     #print (df.head())
     
     # Make confusion matrix
+    print("******* Confusion Matrix *******")
+    print(df.head())
     cm = confusion_matrix(df['real_sequia'], df['pred_sequia'],labels=[True, False])
     print("Confusion Matrix:")
     print(cm)
