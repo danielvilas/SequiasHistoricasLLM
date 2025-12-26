@@ -4,7 +4,7 @@ import os
 base_dir="results"
 
 ds = "work"
-tasks = ["detect"] #["detect","classify"]
+tasks = ["detect", "classify"] #["detect","classify"]
 models = ["fastest","efficient","bestf1"]
 modes = ["no-summary","summary"]
 
