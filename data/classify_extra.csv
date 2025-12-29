@@ -1,0 +1,16 @@
+peridico,news_date,year,month,day,page,ed,evento,event_code,ubicacion,has_sequia,agrocultura,ganaderia,hidrologia,energia,latitud,longitud
+extremadura,08/02/1944,1944,2.0,8.0,1.0,,Sequía,S,España,True,0,0,0,1,,
+extremadura,05/05/1945,1945,5.0,5.0,1.0,,Sequía,S,Provincia de Cáceres,True,0,0,0,1,,
+extremadura,15/06/1945,1945,6.0,15.0,1.0,,Sequía,S,Cáceres,True,0,0,1,1,39.47753910519658,-6.377428325189714
+extremadura,15/10/1945,1945,10.0,15.0,1.0,,Sequía,S,Cáceres,True,0,0,1,1,39.47753910519658,-6.377428325189714
+extremadura,25/11/1947,1947,11.0,25.0,2.0,,Frío,F,Cáceres,True,0,0,0,1,39.47753910519658,-6.377428325189714
+extremadura,28/10/1948,1948,10.0,28.0,4.0,,Lluvia,S,Cáceres,True,1,0,0,1,39.47753910519658,-6.377428325189714
+extremadura,01/10/1948,1948,10.0,1.0,4.0,,Temperatura,F,Cáceres,True,1,0,0,1,39.47753910519658,-6.377428325189714
+extremadura,23/11/1948,1948,11.0,23.0,4.0,,Lluvia,S,Cáceres,True,1,0,0,1,39.47753910519658,-6.377428325189714
+extremadura,16/03/1981,1981,3.0,16.0,6.0,,Lluvia,,Cáceres,True,1,1,1,1,39.47753910519658,-6.377428325189714
+hoy,05/07/1945,1945,7.0,31.0,1.0,CAC,sequía,S,Cáceres,True,0,0,1,1,39.47753910519658,-6.377428325189714
+hoy,01/11/1945,1945,11.0,1.0,4.0,BAD,sequía,S,Cáceres,True,0,0,1,1,39.47753910519658,-6.377428325189714
+hoy,03/11/1945,1945,11.0,3.0,5.0,BAD,sequía,S,Badajoz,True,1,0,1,1,38.871034753836994,-6.975421049278072
+hoy,21/01/1949,1949,1.0,21.0,2.0,BAD,sequía,S,Extremadura,True,0,0,0,1,,
+hoy,06/03/1949,1949,3.0,30.0,2.0,BAD,sequía,S,Badajoz,True,0,0,0,1,38.871034753836994,-6.975421049278072
+hoy,13/07/1949,1949,7.0,13.0,4.0,BAD,sequía,S,Provincia de Badajoz,True,0,0,0,1,,

@@ -52,6 +52,12 @@ def build(folder, year):
 
     if folder=="classify":
         work_ds_df = work_ds_df[work_ds_df["has_sequia"]==True]
+        if os.path.exists(f"data/classify_extra.csv"):
+            print("Classify Extra exits, appending to work_ds.")
+            extra_df = pd.read_csv("data/classify_extra.csv")
+            work_ds_df = pd.concat([work_ds_df, extra_df], ignore_index=True)
+        else:
+            print("Classify Extra does not exist, proceed without it.")
         
     if os.path.exists(work_ds_path):
         shutil.rmtree(work_ds_path)
