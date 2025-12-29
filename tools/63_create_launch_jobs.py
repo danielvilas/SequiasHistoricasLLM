@@ -28,6 +28,7 @@ export SH_MODEL="{config}"
 export SH_DATASET="{ds}"
 export SH_TASK="{task}"
 
+mkdir -p $RESULTS_DIR
 sbatch \
 -J sh_{config}_{task} \
 -t {time} \
