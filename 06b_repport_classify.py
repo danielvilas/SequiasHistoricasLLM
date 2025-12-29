@@ -21,7 +21,7 @@ tipo_agro="agrocultura"
 tipo_ganaderia="ganaderia"
 tipo_hidrologia="hidrologia"
 tipo_energia="energia"
-tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia]
+tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia, tipo_energia]
 
 def test_file_name_to_model(file_name):
     
