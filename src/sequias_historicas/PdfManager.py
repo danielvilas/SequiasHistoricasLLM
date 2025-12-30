@@ -23,10 +23,6 @@ class PdfManager:
         self.pdf_raw_path = pdf_raw_path
         self.pdf_clean_path = pdf_clean_path
 
-    def extract_text(self):
-        # Placeholder for text extraction logic
-        pass
-
     def save_text(self, text, output_path):
         # Placeholder for saving extracted text logic
         pass
