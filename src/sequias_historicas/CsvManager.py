@@ -8,6 +8,7 @@ import csv
 from alive_progress import alive_bar
 from .PagesManager import PagesManager
 
+from typing import Dict, Tuple
 
 import re
 pattern_2_monhts= r'^([a-zA-Z]{3})-([a-zA-Z]{3})_(\d{4}) Pag (\d+)$' #mar-abr_1959 Pag 32
@@ -96,7 +97,21 @@ class CsvManager:
 
         return data
 
-
+    def explode_two_pages(self, line_d:dict)->Tuple[Dict,Dict]:
+        pdf_page = line_d["pdf_page"]
+        #ene_1983_1 HOY Pag 722 y 730
+        pattern = r'^(.*)\s(\d+)\sy\s(\d+)$'
+        match = re.match(pattern, pdf_page)
+        if match:
+            name = match.group(1).strip()
+            page_num1 = match.group(2).strip()
+            page_num2 = match.group(3).strip()
+            line_d1 = line_d.copy()
+            line_d2 = line_d.copy()
+            line_d1["pdf_page"] = f"{name} {page_num1}"
+            line_d2["pdf_page"] = f"{name} {page_num2}"
+            return line_d1, line_d2
+        pass        
 
     def read_raw_csv(self, paper) -> pd.DataFrame:
         file_path = f"{self.pdf_raw_path}/{paper}/{paper}_impactos.csv"
@@ -130,7 +145,16 @@ class CsvManager:
                     line_d["ubicacion"] ="Valencia de Alcántara"
                 if line_d["ubicacion"] =="Garrovillas":
                     line_d["ubicacion"] ="Garrovillas de Alconétar"
-                data.append(line_d)
+
+                
+                if " y " in line_d["pdf_page"]:
+                    print("Warning: line with ' y ' in pdf_page, replacing with - : ", line_d["pdf_page"])
+                    line_d1, line_d2 = self.explode_two_pages(line_d)
+                    print("  -> ", line_d1["pdf_page"], " and ", line_d2["pdf_page"])
+                    data.append(line_d1)
+                    data.append(line_d2)
+                else:
+                    data.append(line_d)
 
                 #print('line[{}] = {}'.format(i, line))
         

@@ -69,11 +69,13 @@ def find_missing_location_entries(paper, row):
     fecha_str = str(row['news_date'])
 
     pdfs = get_pdfs_day(paper, fecha_str)
-
+    print(f"PDFs found for date {fecha_str}: {len(pdfs)}")
     texts = [extract_text(paper,pdf) for pdf in pdfs]
     #print(texts)
     searcher = TfIDFSearcher(texts)
 
+    if titular_lower=="-":
+        titular_lower=frase_lower
     results = searcher.search(titular_lower, top_n=1)
     result = results[0] if results else None
     if result:
@@ -93,6 +95,13 @@ def find_missing_location_entries(paper, row):
     if result:
         return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":pdfs[index]['clean_file'],"score":score}
     else:
+        # casos especiales manuales
+        if fecha_str=="21/06/1945": 
+            return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":"19450621_0002_BAD.pdf","score":0}
+        if fecha_str=="07/07/1945": 
+            return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":"19450707_0003_BAD.pdf","score":0}
+        if fecha_str=="13/09/1950": 
+            return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":"19500913_0007_CAC.pdf","score":0}
         print("No matching PDF found.")
         return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":None,"score":0}
     # print(f"PDFs found for date {fecha_str}: {pdfs}")
@@ -106,8 +115,11 @@ def main(paper):
         df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean.csv")
 
     # Filter rows where 'pdf_page' is NaN
-    df_no_location = df[df['pdf_page'].isna()]
+    df_no_location = df[df['pdf_page'].isna() & (df['clean_file'].isna() | (df['clean_file']==""))]
     print(f"Number of entries without location data: {len(df_no_location)}")
+    if len(df_no_location)==0:
+        print("No entries without location data found. Exiting.")
+        return
     #print(df_no_location.head())
     
     def update_bar_and_find(row,bar):

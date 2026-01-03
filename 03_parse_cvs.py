@@ -105,7 +105,8 @@ def fill_clean_locations(paper_name, loc_df, pages_manager):
 def process_paper(paper_name):
     print(f"Processing paper: {paper_name}")
     raw_df = csv_manager.read_raw_csv(paper_name)
-
+    raw_df.to_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_raw.csv", index=False)
+    #return #early exit for testing
     if os.path.exists(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv"):
         print (f"Clean CSV already exists for paper {paper_name}, skipping location step.")
         loc_df = pd.read_csv(f"./data/datasets/clean/{paper_name}/{paper_name}_impactos_00_ubicacion.csv")
