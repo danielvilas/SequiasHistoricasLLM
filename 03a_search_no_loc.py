@@ -79,16 +79,16 @@ def find_missing_location_entries(paper, row):
     if result:
         (index, document, score) = result
         print(f"Matched PDF (titular): {pdfs[index]['clean_file']} with score {score}")
-        if score < 0.1:
-            result = None
-    if not result:
-        results = searcher.search(frase_lower, top_n=1)
-        result = results[0] if results else None
-        if result:
-            (index, document, score) = result
-            print(f"Matched PDF (frase): {pdfs[index]['clean_file']} with score {score}")
-            if score < 0.1:
-                result = None
+    #     if score < 0.1:
+    #         result = None
+    # if not result:
+    #     results = searcher.search(frase_lower, top_n=1)
+    #     result = results[0] if results else None
+    #     if result:
+    #         (index, document, score) = result
+    #         print(f"Matched PDF (frase): {pdfs[index]['clean_file']} with score {score}")
+    #         if score < 0.1:
+    #             result = None
     
     if result:
         return {"titular":row['titular'],"frase":row['frase'],"fecha":fecha_str,"matched_pdf":pdfs[index]['clean_file'],"score":score}
@@ -100,7 +100,10 @@ def find_missing_location_entries(paper, row):
 
 def main(paper):
     # Load the dataset
-    df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean.csv")
+    if os.path.exists(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv"):
+        df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv")
+    else:
+        df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean.csv")
 
     # Filter rows where 'pdf_page' is NaN
     df_no_location = df[df['pdf_page'].isna()]
@@ -114,7 +117,27 @@ def main(paper):
     with alive_bar(len(df_no_location), title='Processing entries without location data') as bar:
         search_results_df = df_no_location.apply(lambda row: update_bar_and_find(row, bar), axis=1)
     search_results_df.to_csv(f"data/datasets/clean/{paper}/{paper}_search_blank_00.csv", index=False)
+    print ("Search results saved to CSV.")
+    print("****")
+    for index, row in search_results_df.iterrows():
+        #print (index)
+        #print(row)
+        #print(df.iloc[index])
+        if not row['matched_pdf'] or pd.isna(row['matched_pdf']):
+            continue
+        pdf_s=fileName_2_struct(row['matched_pdf'],f"data/datasets/clean/{paper}/")
+        #print (pdf_s)
+        df.at[index,'clean_file']=row['matched_pdf']
+        df.at[index,'year.1']=pdf_s['year.1']
+        df.at[index,'month']=pdf_s['month']
+        df.at[index,'day']=pdf_s['day']
+        df.at[index,'page']=pdf_s['page']
+        if pdf_s['edition'] is not None and pdf_s['edition']!="":
+            df.at[index,'edition']=pdf_s['edition']
+        #print(df.iloc[index])
+    df.to_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv", index=False)
+
 
 if __name__ == "__main__":
-    #main("extremadura")
+    main("extremadura")
     main("hoy")

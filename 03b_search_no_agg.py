@@ -11,6 +11,21 @@ from alive_progress import alive_bar
 pdfManager = PdfManager()
 csvManager = CsvManager()
 
+def fileName_2_struct(filename,dir):
+    # 19550105_0001_BAD.pdf
+    # 19550105_0001.pdf
+    year = filename[0:4]
+    month = filename[4:6]
+    day = filename[6:8]
+    page = filename[9:13]
+    if filename[14]==".":
+        edition = None
+    else:
+        edition = filename[14:-4]
+
+    return {"year.1":int(year),"month":int(month),"day":int(day),"page":int(page),"edition":edition,"clean_file":filename,"dir":dir}
+
+
 def find_day_in_month_page(paper, year, sMonth, page, scnt =0):
     start_dir = f"data/datasets/clean/{paper}/{year}/{sMonth:02}/"
     cnt = scnt
@@ -42,7 +57,7 @@ def find_page_in_month(paper,year, sMonth, page):
         return None
     print (f"Day found: {day} at cnt={cnt} for page={page}")
     page_in_day = page - cnt
-    return f"{year:04}{sMonth:02}{day:02}_{page_in_day:04}"
+    return f"{year:04}{sMonth:02}{day:02}_{page_in_day:04}.pdf"
 
 def find_missing_aggreation(paper, row):
     print("--------------------------------")
@@ -73,7 +88,10 @@ def find_missing_aggreation(paper, row):
 def main(paper):
     
     # Load the dataset
-    df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean.csv")
+    if os.path.exists(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv"):
+        df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv")
+    else:
+        df = pd.read_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean.csv")
 
     # Filter rows where 'pdf_page' is NaN
     df_no_aggreagation = df[df['pdf_page'].notna()]
@@ -91,7 +109,26 @@ def main(paper):
     with alive_bar(len(df_no_aggreagation), title='Processing entries without location data') as bar:
         search_results_df = df_no_aggreagation.apply(lambda row: update_bar_and_find(row, bar), axis=1)
     search_results_df.to_csv(f"data/datasets/clean/{paper}/{paper}_search_blank_01.csv", index=False)
+    print ("Search results saved to CSV.")
+    print("****")
+    for index, row in search_results_df.iterrows():
+        #print (index)
+        #print(row)
+        #print(df.iloc[index])
+        if not row['pdf'] or pd.isna(row['pdf']):
+            continue
+        pdf_s=fileName_2_struct(row['pdf'],f"data/datasets/clean/{paper}/")
+        #print (pdf_s)
+        df.at[index,'clean_file']=row['pdf']
+        df.at[index,'year.1']=pdf_s['year.1']
+        df.at[index,'month']=pdf_s['month']
+        df.at[index,'day']=pdf_s['day']
+        df.at[index,'page']=pdf_s['page']
+        if pdf_s['edition'] is not None and pdf_s['edition']!="":
+            df.at[index,'edition']=pdf_s['edition']
 
+        #print(df.iloc[index])
+    df.to_csv(f"data/datasets/clean/{paper}/{paper}_impactos_clean_full.csv", index=False)
 if __name__ == "__main__":
     main("extremadura")
     #main("hoy")
