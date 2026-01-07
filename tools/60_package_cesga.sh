@@ -10,7 +10,7 @@
 
 echo "Packaging CESGA files..."
 
-tar -cvzf cesga_files.tar.gz src data/datasets/work_ds results
+tar -cvzf cesga_files.tar.gz src data/datasets/work_ds data/datasets/full_ds
 scp cesga_files.tar.gz ft3.cesga.es:./SequiasHistoricasLLM
 rm cesga_files.tar.gz
 echo "Package cesga_files.tar.gz uploaded to CESGA"
