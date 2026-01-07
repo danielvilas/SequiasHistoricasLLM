@@ -14,9 +14,9 @@ export SH_MODEL="bestf1-no-summary"
 export SH_DATASET="work"
 export SH_TASK="detect"
 
-echo sbatch -t 05:00:00 -o $RESULTS_DIR/slurm.out -e $RESULTS_DIR/slurm.err -c 64 --gres=gpu:a100:$SLURM_GPUS $(pwd)/05_sbatch.sh
+echo sbatch -t 05:00:00 -o $RESULTS_DIR/slurm.out -e $RESULTS_DIR/slurm.err -c 64 --gres=gpu:a100:$SLURM_GPUS $(pwd)/06_sbatch.sh
 
-sh 05_sbatch.sh
+sh 06_sbatch.sh
 
 # Job for bestf1-summary detect
 
@@ -26,7 +26,7 @@ export SH_MODEL="bestf1-summary"
 export SH_DATASET="work"
 export SH_TASK="detect"
 
-echo sbatch -t 05:00:00 -o $RESULTS_DIR/slurm.out -e $RESULTS_DIR/slurm.err -c 64 --gres=gpu:a100:$SLURM_GPUS $(pwd)/05_sbatch.sh
+echo sbatch -t 05:00:00 -o $RESULTS_DIR/slurm.out -e $RESULTS_DIR/slurm.err -c 64 --gres=gpu:a100:$SLURM_GPUS $(pwd)/06_sbatch.sh
 
-sh 05_sbatch.sh
+sh 06_sbatch.sh
 
