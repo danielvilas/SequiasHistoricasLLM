@@ -36,7 +36,7 @@ sbatch \
 -e $RESULTS_DIR/slurm.err \
 -c {cpus} \
 --gres={gpu} \
-$(pwd)/05_sbatch.sh
+$(pwd)/06_sbatch.sh
 
 '''
 
