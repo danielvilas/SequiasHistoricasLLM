@@ -39,9 +39,9 @@ def find_day_in_month_page(paper, year, sMonth, page, scnt =0):
         for filename in os.listdir(day_folder):
             files.append(filename)
         #print (f"Checking folder: {day_folder} (files found: {len(files)})")
-        if len(files)<0:
+        if len(files)<=0:
             continue
-        if cnt+len(files)>page:
+        if cnt+len(files)>=page:
             return (day, cnt)
         cnt += len(files)
     return (None, cnt)
