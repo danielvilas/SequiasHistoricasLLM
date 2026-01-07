@@ -25,7 +25,7 @@ def create_json(paper, year, month, day, page, text):
 
 
 def copy_page(row, pdf_folder, json_folder):
-    paper = row["peridico"]
+    paper = row["periodico"]
     year = int(row["year"])
     month = int(row["month"])
     day = int(row["day"])
@@ -79,7 +79,7 @@ def build(folder, year):
         
 
 
-    work_ds_df = work_ds_df.drop(columns=["peridico", "year", "month", "day", "page", "ed","evento","event_code"])
+    work_ds_df = work_ds_df.drop(columns=["periodico", "year", "month", "day", "page", "ed","evento","event_code"])
     work_ds_df.to_csv(f"{work_ds_path}/work_ds.csv", index=False)
 
 def main():

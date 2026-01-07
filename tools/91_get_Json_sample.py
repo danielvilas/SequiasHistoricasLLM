@@ -6,7 +6,7 @@ from sequias_historicas.PdfManager import PdfManager
 import sys
 
 pdfs_to_process = [
-    #peridico,ano,mes,dia,pagina,ed
+    #periodico,ano,mes,dia,pagina,ed
     ("extremadura",1923,9,18,1,None,True), # portada
     ("extremadura",1924,6,7,4,None,True), # Sequia
     ("extremadura",1924,6,7,1,None,False), # Portada

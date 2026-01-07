@@ -94,8 +94,8 @@ def main():
 
 # A partir de aqui son funciones de testeo
 
-def extract_files(peridico,year,month):
-    pdfs = pdf_manager.list_pdfs(newspaper=peridico, year=year)
+def extract_files(periodico,year,month):
+    pdfs = pdf_manager.list_pdfs(newspaper=periodico, year=year)
     for pdf in pdfs:
         if pdf.month == month:
             print (f"{pdf.path} -> {pdf.year}-{pdf.month}-{pdf.day}-{pdf.page}")

@@ -22,7 +22,7 @@ def print_additional_info(paper):
 
 def convert_row_to_dict(paper,row):
         return {
-        "peridico": paper,
+        "periodico": paper,
         "news_date": row["news_date"],
         "year": row["year"],
         "month": row["month"],

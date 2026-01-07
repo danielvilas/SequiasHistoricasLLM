@@ -1,4 +1,4 @@
-peridico,news_date,year,month,day,page,ed,evento,event_code,ubicacion,has_sequia,agrocultura,ganaderia,hidrologia,energia,latitud,longitud
+periodico,news_date,year,month,day,page,ed,evento,event_code,ubicacion,has_sequia,agrocultura,ganaderia,hidrologia,energia,latitud,longitud
 extremadura,08/02/1944,1944,2.0,8.0,1.0,,Sequía,S,España,True,0,0,0,1,,
 extremadura,05/05/1945,1945,5.0,5.0,1.0,,Sequía,S,Provincia de Cáceres,True,0,0,0,1,,
 extremadura,15/06/1945,1945,6.0,15.0,1.0,,Sequía,S,Cáceres,True,0,0,1,1,39.47753910519658,-6.377428325189714

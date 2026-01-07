@@ -1,4 +1,4 @@
-peridico,news_date,year,month,day,page,ed,evento,event_code,ubicacion,has_sequia,agrocultura,ganaderia,hidrologia,energia,latitud,longitud
+periodico,news_date,year,month,day,page,ed,evento,event_code,ubicacion,has_sequia,agrocultura,ganaderia,hidrologia,energia,latitud,longitud
 extremadura,18/09/1923,1923,9.0,18.0,1.0,,Calor,S,Casas de Don Antonio,True,1,0,0,0,39.23584424716719,-6.291346324578782
 extremadura,07/06/1924,1924,6.0,7.0,4.0,,Sequía,S,Aldeanueva del Camino,True,1,0,0,0,40.25935163824006,-5.930394923796403
 extremadura,1924/06/07,1924,6.0,7.0,1.0,,,,,False,0,0,0,0,,

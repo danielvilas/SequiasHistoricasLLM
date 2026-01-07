@@ -8,7 +8,7 @@ import random
 import os
 
 pdfs_to_process = [
-    #peridico,ano,mes,dia,pagina,ed
+    #periodico,ano,mes,dia,pagina,ed
     ("extremadura",1923,9,18,1,None,True), # portada
     ("extremadura",1924,6,7,4,None,True), # Sequia
     ("extremadura",1924,6,7,1,None,False), # Portada
@@ -184,7 +184,7 @@ def _manual_data2dict(pdf)->dict:
             return None
         else:            
             return {
-                "peridico": paper,
+                "periodico": paper,
                 "news_date": row["news_date"],
                 "year": year,
                 "month": month,
@@ -204,7 +204,7 @@ def _manual_data2dict(pdf)->dict:
                 }   
     else:
         return {
-            "peridico": paper,
+            "periodico": paper,
             "news_date": f"{year}/{month:02d}/{day:02d}",
             "year": year,
             "month": month,
@@ -243,7 +243,7 @@ def _chose_random_row_for_year(paper, year)->dict:
     row_i = random.choice(df_year.index)
     row = df.loc[row_i]
     return {
-        "peridico": paper,
+        "periodico": paper,
         "news_date": row["news_date"],
         "year": year,
         "month": row["month"],
@@ -289,7 +289,7 @@ def _chose_random_row_no_sequia_for_year(paper, year, month)->dict:
     if res is not None: 
         return _chose_random_row_no_sequia_for_year(paper, year, month)
     return {
-        "peridico": paper,
+        "periodico": paper,
         "news_date": f"{year}/{month:02d}/{day:02d}",
         "year": year,
         "month": month,
@@ -346,7 +346,7 @@ def main():
     data = manual_data()
 
     # Define column names
-    #columns = ["peridico", "ano", "mes", "dia", "pagina", "ed", "has_sequia"]
+    #columns = ["periodico", "ano", "mes", "dia", "pagina", "ed", "has_sequia"]
 
     # Create DataFrame
     df = pd.DataFrame(data)
