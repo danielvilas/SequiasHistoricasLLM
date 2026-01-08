@@ -230,7 +230,7 @@ def main():
     dataset = sys.argv[1]
     tests = os.listdir(f"results/{dataset}/classify/")
     tests = [test for test in tests if os.path.isdir(f"results/{dataset}/classify/{test}")]
-    real_ds = pd.read_csv(f"data/datasets/{dataset}_ds/classify/work_ds.csv")
+    real_ds = pd.read_csv(f"data/datasets/{dataset}_ds/classify/{dataset}_ds.csv")
 
     for tipo in tipos:
         print (f"Total real {tipo}: {real_ds[tipo].sum()} out of {len(real_ds)}")
