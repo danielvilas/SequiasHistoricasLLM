@@ -119,7 +119,7 @@ def main():
     dataset = sys.argv[1]
     tests = os.listdir(f"results/{dataset}/detect/")
     tests = [test for test in tests if os.path.isdir(f"results/{dataset}/detect/{test}")]
-    real_ds = pd.read_csv(f"data/datasets/{dataset}_ds/detect/work_ds.csv")
+    real_ds = pd.read_csv(f"data/datasets/{dataset}_ds/detect/{dataset}_ds.csv")
     data = []
 
     tests = sorted(tests)
