@@ -34,8 +34,8 @@ def test_file_name_to_model(file_name):
 
 def extract_data(row, field):
     val = row.get(field, 0)
-
-    if val in [0, '0', False, 'False', 'false']: return False
+    # Default is False
+    if val in [0, '0', False, 'False', 'false', None]: return False
     if val in [1, '1', True, 'True', 'true']: return True
     
     print (f"Unknown value for {field}: {val}")
