@@ -79,6 +79,7 @@ models:
     overrides:
       llm:
         name: qwen3:8b
+        thinking: true
   - name: detect-qwen3-summary
     base: detect-efficient
     overrides:
@@ -101,3 +102,20 @@ models:
       steps:
         summarization:
           enable: true
+#Test de summary-expert
+  - name: detect-efficient-summary-expert
+    base: detect-efficient
+    overrides:
+      steps:
+        summarization:
+          enable: true
+          prompt:
+            language: en-expert
+  - name: classify-efficient-summary-expert
+    base: classify-efficient
+    overrides:
+      steps:
+        summarization:
+          enable: true
+          prompt:
+            language: en-expert

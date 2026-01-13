@@ -31,3 +31,6 @@ python 06_launch_ciena.py full efficient-no-summary classify
 python 06_launch_ciena.py full efficient-summary classify
 #python 06_launch_ciena.py full bestf1-no-summary classify
 #python 06_launch_ciena.py full bestf1-summary classify
+
+
+# python 06_launch_ciena.py full detect-efficient-summary-expert detect

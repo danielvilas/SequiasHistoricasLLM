@@ -4,11 +4,31 @@ import time
 import yaml
 import os
 
+from ciena_llm.prompt.prompt_template_manager import PromptTemplateManager
+
+
+
+SUMMARIZATION_EXPERT_EN = """
+Summarize the following article, focusing on the most relevant aspects related to drougth, the impacts of drougth, and the affected locations.
+
+Text:
+{text}
+"""
+
+
 class CienaLauncher:
     def __init__(self, modelManager=None):
         if modelManager is None:
             modelManager = ModelManager.load_yaml_config()
         self.modelManager = modelManager
+
+        print("Injecting extra summary prompt")
+        
+        PromptTemplateManager.TEMPLATES.update(
+        {(None, "summarization", None, "en-expert"): {
+            "template": SUMMARIZATION_EXPERT_EN,
+            "variables": ["text"],
+        }})
     
     def _build_config(self,model):
         model = self.modelManager.get_model_config(model)
