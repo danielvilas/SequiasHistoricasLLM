@@ -219,6 +219,7 @@ out.txt
 *.png
 data/datasets/json_test/
 data/datasets/work_ds/
+data/datasets/upd_ds/
 data/datasets/test_ds/
 data/datasets/full_ds/
 tests
@@ -227,3 +228,4 @@ tmp
 test.tar
 cesga_files.tar.gz
 search*.txt
+genmodels.yaml

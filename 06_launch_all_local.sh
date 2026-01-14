@@ -14,6 +14,7 @@ python 06_launch_ciena.py work qwen3-no-summary detect
 python 06_launch_ciena.py work qwen3-summary detect
 python 06_launch_ciena.py work deepseek-no-summary detect
 python 06_launch_ciena.py work deepseek-summary detect
+python 06_launch_ciena.py full efficient-summary-expert detect
 
 
 python 06_launch_ciena.py full fastest-no-summary detect

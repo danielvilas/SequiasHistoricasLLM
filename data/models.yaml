@@ -85,6 +85,7 @@ models:
     overrides:
       llm:
         name: qwen3:8b
+        thinking: true
       steps:
         summarization:
           enable: true
@@ -94,6 +95,7 @@ models:
     overrides:
       llm:
         name: deepseek-r1:8b
+        thinking: true
   - name: detect-deepseek-summary
     base: detect-efficient
     overrides:
