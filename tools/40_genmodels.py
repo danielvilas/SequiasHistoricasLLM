@@ -3,9 +3,10 @@ from copy import deepcopy
 
 base_models = ["fastest","efficient","bestf1"]
 summary={"no-summary":None,
-         "summary":{"steps":{"summarization":{"enable": True}}}
-        } #, "summary-expert"]
-actions = ["classify","classify"]
+         "summary":{"steps":{"summarization":{"enable": True}}},
+         "summary-expert":{"steps":{"summarization":{"enable": True,"prompt":{"language":"en-expert"}}}}
+         }
+actions = ["detect","classify"]
 
 extra_models = {"efficient3":{"llm":"qwen3:8b","base":"efficient"},
                 "bestf13":{"llm":"qwen3:30b","base":"bestf1"},
@@ -25,7 +26,7 @@ def build_model(action:str, base_model:str, summ:str):
     if base_model in extra_models:
         if "overrides" not in cfg:
             cfg["overrides"] = {}
-        cfg["base"] = extra_models[base_model]["base"]        
+        cfg["base"] = action+"-"+extra_models[base_model]["base"]        
         cfg["overrides"]["llm"] = {"name": extra_models[base_model]["llm"],
                                     "thinking":True}
 

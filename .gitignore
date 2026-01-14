@@ -229,3 +229,4 @@ test.tar
 cesga_files.tar.gz
 search*.txt
 genmodels.yaml
+data/models_old.yaml

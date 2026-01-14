@@ -1,123 +1,253 @@
-# Este archivo define los modelos que se evaluaran con su configuracion
-
-# Este campo marca la configuracion por defecto para todos los modelos
-fastest:
-#  qwen_3b DESC
-
-models:    
-# Modelos para Clasificacion
-  - name: classify-fastest-no-summary
-    base: classify-fastest
-  - name: classify-fastest-summary
-    base: classify-fastest
-    overrides:
-      steps:
-        summarization:
-          enable: true
-  
-  - name: classify-efficient-no-summary
-    base: classify-efficient
-  - name: classify-efficient-summary
-    base: classify-efficient
-    overrides:
-      steps:
-        summarization:
-          enable: true
-  
-  - name: classify-bestf1-no-summary
-    base: classify-bestf1
-  - name: classify-bestf1-summary
-    base: classify-bestf1
-    overrides:
-      steps:
-        summarization:
-          enable: true
-#Modelos para deteccion
-  - name: detect-fastest-no-summary
-    base: detect-fastest
-  - name: detect-fastest-summary
-    base: detect-fastest
-    overrides:
-      steps:
-        summarization:
-          enable: true
-  - name: detect-efficient-no-summary
-    base: detect-efficient
-  - name: detect-efficient-summary
-    base: detect-efficient
-    overrides:
-      steps:
-        summarization:
-          enable: true
-  - name: detect-bestf1-no-summary
-    base: detect-bestf1
-  - name: detect-bestf1-summary
-    base: detect-bestf1
-    overrides:
-      steps:
-        summarization:
-          enable: true
-
-# modelos extra de deteccion
-  #gemma3
-  - name: detect-gemma3-no-summary
-    base: detect-fastest
-    overrides:
-      llm:
-        name: gemma3:4b
-  - name: detect-gemma3-summary
-    base: detect-fastest
-    overrides:
-      llm:
-        name: gemma3:4b
-      steps:
-        summarization:
-          enable: true
-  #qwen3 
-  - name: detect-qwen3-no-summary
-    base: detect-efficient
-    overrides:
-      llm:
-        name: qwen3:8b
-        thinking: true
-  - name: detect-qwen3-summary
-    base: detect-efficient
-    overrides:
-      llm:
-        name: qwen3:8b
-        thinking: true
-      steps:
-        summarization:
-          enable: true
-  #deepseek
-  - name: detect-deepseek-no-summary
-    base: detect-efficient
-    overrides:
-      llm:
-        name: deepseek-r1:8b
-        thinking: true
-  - name: detect-deepseek-summary
-    base: detect-efficient
-    overrides:
-      llm:
-        name: deepseek-r1:8b
-      steps:
-        summarization:
-          enable: true
-#Test de summary-expert
-  - name: detect-efficient-summary-expert
-    base: detect-efficient
-    overrides:
-      steps:
-        summarization:
-          enable: true
-          prompt:
-            language: en-expert
-  - name: classify-efficient-summary-expert
-    base: classify-efficient
-    overrides:
-      steps:
-        summarization:
-          enable: true
-          prompt:
-            language: en-expert
+models:
+- base: detect-fastest
+  name: detect-fastest-no-summary
+- base: detect-fastest
+  name: detect-fastest-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: detect-fastest
+  name: detect-fastest-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: detect-efficient
+  name: detect-efficient-no-summary
+- base: detect-efficient
+  name: detect-efficient-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: detect-efficient
+  name: detect-efficient-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: detect-bestf1
+  name: detect-bestf1-no-summary
+- base: detect-bestf1
+  name: detect-bestf1-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: detect-bestf1
+  name: detect-bestf1-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: detect-efficient
+  name: detect-efficient3-no-summary
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+- base: detect-efficient
+  name: detect-efficient3-summary
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: detect-efficient
+  name: detect-efficient3-summary-expert
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: detect-bestf1
+  name: detect-bestf13-no-summary
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+- base: detect-bestf1
+  name: detect-bestf13-summary
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: detect-bestf1
+  name: detect-bestf13-summary-expert
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: detect-efficient
+  name: detect-deepseek-no-summary
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+- base: detect-efficient
+  name: detect-deepseek-summary
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: detect-efficient
+  name: detect-deepseek-summary-expert
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-fastest
+  name: classify-fastest-no-summary
+- base: classify-fastest
+  name: classify-fastest-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: classify-fastest
+  name: classify-fastest-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-efficient
+  name: classify-efficient-no-summary
+- base: classify-efficient
+  name: classify-efficient-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: classify-efficient
+  name: classify-efficient-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-bestf1
+  name: classify-bestf1-no-summary
+- base: classify-bestf1
+  name: classify-bestf1-summary
+  overrides:
+    steps:
+      summarization:
+        enable: true
+- base: classify-bestf1
+  name: classify-bestf1-summary-expert
+  overrides:
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-efficient
+  name: classify-efficient3-no-summary
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+- base: classify-efficient
+  name: classify-efficient3-summary
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: classify-efficient
+  name: classify-efficient3-summary-expert
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-bestf1
+  name: classify-bestf13-no-summary
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+- base: classify-bestf1
+  name: classify-bestf13-summary
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: classify-bestf1
+  name: classify-bestf13-summary-expert
+  overrides:
+    llm:
+      name: qwen3:30b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
+- base: classify-efficient
+  name: classify-deepseek-no-summary
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+- base: classify-efficient
+  name: classify-deepseek-summary
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+- base: classify-efficient
+  name: classify-deepseek-summary-expert
+  overrides:
+    llm:
+      name: deepseek-r1:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
+        prompt:
+          language: en-expert
