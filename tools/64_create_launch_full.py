@@ -5,9 +5,9 @@ base_dir="results"
 
 ds = "full"
 tasks = ["detect", "classify"] #["detect","classify"]
-models = ["bestf1","fastest","efficient"]
-modes = ["no-summary","summary"]
-
+#models = ["fastest","efficient","bestf1", "efficient3", "bestf13","deepseek"]
+models = ["bestf1", "bestf13"]
+modes = ["no-summary","summary","summary-expert"]
 # Estimaciones de tiempo con los datos de paper de CienaLLM
 time_short="05:00:00" # 2500 n por 4s = 166min (3h)
 time_long="45:00:00" # 2500 n por 60s = 2500min (41) 
