@@ -23,6 +23,11 @@ tipo_hidrologia="hidrologia"
 tipo_energia="energia"
 tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia, tipo_energia]
 
+ciena_tvi={"bestf1":{"accuracy":0.742,"precision":0.737,"recall":0.832,"f1_score":0.782},
+            "efficient":{"accuracy":0.686,"precision":0.791,"recall":0.544,"f1_score":0.645},
+            "fastest":{"accuracy":0.634,"precision":0.769,"recall":0.320,"f1_score":0.452}
+            }
+
 def test_file_name_to_model(file_name):
     
     # extremadura_1962_9_1_page_1 -> extremadura_1962_09_01_page_0001
@@ -120,9 +125,9 @@ def generate_reports(real_ds, dataset, test_name):
         print (f"Predicted positives: {df['pred_'+tipo].sum()}, Real positives: {df['real_'+tipo].sum()}")
         cm = confusion_matrix(df['real_'+tipo], df['pred_'+tipo],labels=[True, False])
         print(cm)
-        fig, ax = plt.subplots(figsize=(5, 2.5))
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[tipo, 'No '+tipo])
-        disp.plot(ax=ax)
+        fig, ax = plt.subplots(figsize=(4, 2.5),layout="constrained")
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Drought', 'No Drought'])
+        disp.plot(ax=ax, text_kw={'fontsize':14}, cmap=plt.cm.Blues)
         #save to memory
         buf = io.BytesIO()
         disp.figure_.savefig(buf, format='png')
@@ -190,14 +195,14 @@ def build_bar_chart(df, name):
     groups = df.columns[1:].to_list()
 
     x = np.arange(len(groups))  # the label locations
-    #display(x)
-    width = 0.15  # the width of the bars
+    #print(x)
+    width = 0.06  # the width of the bars
     multiplier = 0
 
     columns = df["model"].to_list()
     #display(columns)
 
-    fig, ax = plt.subplots(layout='constrained')
+    fig, ax = plt.subplots(figsize=(7.25, 4), layout='constrained')
 
     for c in columns:
         #display(c)
@@ -212,7 +217,7 @@ def build_bar_chart(df, name):
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel(name)
     ax.set_title(f'{name} por Tipos de Sequia')
-    ax.set_xticks(x + width*2, groups)
+    ax.set_xticks(x + width*6.9, groups)
     fig.legend(loc='outside lower center', ncols=3)
     ax.set_ylim(0, 1)
 
@@ -221,6 +226,25 @@ def build_bar_chart(df, name):
     buf.seek(0)
     b64_img = base64.b64encode(buf.read()).decode('utf-8')
     return b64_img
+
+
+def cross_table(df, key):
+    table = {}
+    models =[]
+    for _, row in df.iterrows():
+        model = row['model'].split('-')[0]
+        mode = row['model'].replace(f'{model}-','')
+        if model not in table:
+            table[model] = {'model': model}
+        table[model][mode] = row[key]
+        if model not in models:
+            models.append(model)
+    for model in models:
+        if model not in ciena_tvi:
+            continue
+        table[model]["ciena"] = ciena_tvi[model]["f1_score"]
+    
+    return pd.DataFrame.from_dict(table, orient='index')
 
 def main():
     if len(sys.argv) != 2:
@@ -247,10 +271,13 @@ def main():
     
     df_acc=build_table(data, 'accuracy')
     df_f1=build_table(data, 'f1_score')
+    df_f1_global = cross_table(df_f1, 'global')
     print("=== Accuracy Table ===")
     print(df_acc)
     print("=== F1-Score Table ===")
     print(df_f1)
+    print("=== F1-Score Global Table ===")
+    print(df_f1_global)
 
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
@@ -260,6 +287,7 @@ def main():
         dataset=dataset,
         accuracy_table=df_acc.to_html(index=False, float_format="{:.2f}".format),
         f1_score_table=df_f1.to_html(index=False, float_format="{:.2f}".format),
+        f1_global=df_f1_global.to_html(index=False, float_format="{:.2f}".format),
         results=data,
         accuracy_chart=build_bar_chart(df_acc, "Accuracy"),
         f1_score_chart=build_bar_chart(df_f1, "F1-Score"),
