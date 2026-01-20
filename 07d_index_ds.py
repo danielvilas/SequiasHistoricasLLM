@@ -9,6 +9,10 @@ import pandas as pd
 from alive_progress import alive_bar
 import json
 
+import spacy
+import es_core_news_md
+nlp = es_core_news_md.load()
+
 action="detect"
 
 def read_file(file: str) -> str:
@@ -20,6 +24,14 @@ def read_file(file: str) -> str:
     except Exception as e:
         print(f"Error reading file {file}: {e}")
         return ""
+    
+def spacy_tokenize(real_ds: pd.DataFrame) -> pd.DataFrame:
+    disabled = ['entity_linker','entity_ruler','textcat','textcat_multilabel',
+           'trainable_lemmatizer','attribute_ruler','sentencizer','transformer']
+    nlp_data=list(nlp.pipe(iter(real_ds["CONTENIDO"]),batch_size = 100,disable=disabled,n_process=5))
+    real_ds["NLP"]=nlp_data
+
+    return real_ds
 
 
 def index_files(real_ds: pd.DataFrame, dataset) -> pd.DataFrame:
