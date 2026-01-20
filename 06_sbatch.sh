@@ -43,6 +43,10 @@ done
 export OLLAMA_HOST="127.0.0.1:$OLLAMA_PORT"
 export OLLAMA_TMPDIR=$TMPDIR
 
+unset ROCR_VISIBLE_DEVICES
+export OLLAMA_LOAD_TIMEOUT=10m
+export OLLAMA_MAX_LOADED_MODELS=1 
+
 # Start the Ollama server
 ollama serve >$RESULTS_DIR/ollama_server.log 2>&1 &
 

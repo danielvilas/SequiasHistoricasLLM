@@ -68,9 +68,9 @@ def generate_reports(real_ds, dataset, test_name):
     cm = confusion_matrix(df['real_sequia'], df['pred_sequia'],labels=[True, False])
     print("Confusion Matrix:")
     print(cm)
-    fig, ax = plt.subplots(figsize=(5, 2.5))
+    fig, ax = plt.subplots(figsize=(4, 2.5),layout="constrained")
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Drought', 'No Drought'])
-    disp.plot(ax=ax)
+    disp.plot(ax=ax, text_kw={'fontsize':14}, cmap=plt.cm.Blues)
     #save to memory
     buf = io.BytesIO()
     disp.figure_.savefig(buf, format='png')
