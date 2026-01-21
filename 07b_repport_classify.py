@@ -165,6 +165,16 @@ def generate_reports(real_ds, dataset, test_name):
     recall /= len(tipos)
     f1_score /= len(tipos)
 
+    times_js=json.loads(open(f"results/{dataset}/classify/{test_name}/execution_times.json").read())
+    full_time=times_js.get("total",None)
+    avg_time=full_time/len(df) if full_time is not None else None
+    parrsing_errors_js= json.loads(open(f"results/{dataset}/classify/{test_name}/parsing_errors.json").read())
+    parsing_errors=parrsing_errors_js.get("total",0)
+
+    print(f"Total Execution Time: {full_time:.2f} seconds" if full_time is not None else "Total Execution Time: N/A")
+    print(f"Average Time per Article: {avg_time:.2f} seconds" if avg_time is not None else "Average Time per Article: N/A")
+    print(f"Total Parsing Errors: {parsing_errors}")
+
     print("---- End Report ----")
     return {
         'test_name': test_name,
@@ -173,7 +183,10 @@ def generate_reports(real_ds, dataset, test_name):
         'recall': recall,
         'f1_score': f1_score,
         'total': len(df),
-        'tipos_info': info
+        'tipos_info': info,
+        "full_time": full_time,
+        "avg_time": avg_time,
+        "parsing_errors": parsing_errors
     }
 
 def build_table(data, key):
@@ -187,6 +200,8 @@ def build_table(data, key):
         name = row['test_name']
         table[name] = {"model":name,"global": row[key]}
         for tipo in tipos:
+            if key not in row['tipos_info'][tipo]:
+                continue
             table[name][tipo] = row['tipos_info'][tipo][key]
 
     return pd.DataFrame.from_dict(table, orient='index')
@@ -228,7 +243,7 @@ def build_bar_chart(df, name):
     return b64_img
 
 
-def cross_table(df, key):
+def cross_table(df, key, include_ciena=True):
     table = {}
     models =[]
     for _, row in df.iterrows():
@@ -239,10 +254,11 @@ def cross_table(df, key):
         table[model][mode] = row[key]
         if model not in models:
             models.append(model)
-    for model in models:
-        if model not in ciena_tvi:
-            continue
-        table[model]["ciena"] = ciena_tvi[model]["f1_score"]
+    if include_ciena:
+        for model in models:
+            if model not in ciena_tvi:
+                continue
+            table[model]["ciena"] = ciena_tvi[model]["f1_score"]
     
     return pd.DataFrame.from_dict(table, orient='index')
 
@@ -271,6 +287,8 @@ def main():
     
     df_acc=build_table(data, 'accuracy')
     df_f1=build_table(data, 'f1_score')
+    avg_time = cross_table(build_table(data, 'avg_time'), 'global', include_ciena=False)
+    errors = cross_table(build_table(data, 'parsing_errors'), 'global', include_ciena=False)
     df_f1_global = cross_table(df_f1, 'global')
     print("=== Accuracy Table ===")
     print(df_acc)
@@ -278,6 +296,10 @@ def main():
     print(df_f1)
     print("=== F1-Score Global Table ===")
     print(df_f1_global)
+    print("=== Average Time per Article ===")
+    print(avg_time)
+    print("=== Parsing Errors ===")
+    print(errors)
 
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
@@ -288,6 +310,8 @@ def main():
         accuracy_table=df_acc.to_html(index=False, float_format="{:.2f}".format),
         f1_score_table=df_f1.to_html(index=False, float_format="{:.2f}".format),
         f1_global=df_f1_global.to_html(index=False, float_format="{:.2f}".format),
+        average_time_table=avg_time.to_html(index=False, float_format="{:.2f}".format),
+        parsing_errors_table=errors.to_html(index=False),
         results=data,
         accuracy_chart=build_bar_chart(df_acc, "Accuracy"),
         f1_score_chart=build_bar_chart(df_f1, "F1-Score"),

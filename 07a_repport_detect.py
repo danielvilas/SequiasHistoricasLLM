@@ -83,6 +83,16 @@ def generate_reports(real_ds, dataset, test_name):
     score = precision_recall_fscore_support(df['real_sequia'], df['pred_sequia'],labels=[True])
     print("Precision, Recall, F1-Score:")
     print(score)
+
+    times_js=json.loads(open(f"results/{dataset}/detect/{test_name}/execution_times.json").read())
+    full_time=times_js.get("total",None)
+    avg_time=full_time/len(df) if full_time is not None else None
+    parrsing_errors_js= json.loads(open(f"results/{dataset}/detect/{test_name}/parsing_errors.json").read())
+    parsing_errors=parrsing_errors_js.get("total",0)
+
+    print(f"Total Execution Time: {full_time:.2f} seconds" if full_time is not None else "Total Execution Time: N/A")
+    print(f"Average Time per Article: {avg_time:.2f} seconds" if avg_time is not None else "Average Time per Article: N/A")
+    print(f"Total Parsing Errors: {parsing_errors}")
     print("---- End Report ----")
     return {
         'test_name': test_name,
@@ -91,7 +101,11 @@ def generate_reports(real_ds, dataset, test_name):
         'recall': score[1][0],
         'f1_score': score[2][0],
         'total': len(df),
-        "cm_image": b64_img
+        "cm_image": b64_img,
+        "full_time": full_time,
+        "avg_time": avg_time,
+        "parsing_errors": parsing_errors
+
     }
 
 def build_table(data, key):
@@ -107,6 +121,8 @@ def build_table(data, key):
             models.append(model)
     for model in models:
         if model not in ciena_tvii:
+            continue
+        if key not in ciena_tvii[model]:
             continue
         table[model]["ciena"] = ciena_tvii[model][key]
     return pd.DataFrame.from_dict(table, orient='index')
@@ -132,10 +148,16 @@ def main():
     
     df_acc=build_table(data, 'accuracy')
     df_f1=build_table(data, 'f1_score')
+    avg_time = build_table(data, 'avg_time')
+    errors = build_table(data, 'parsing_errors')
     print("=== Accuracy Table ===")
     print(df_acc)
     print("=== F1-Score Table ===")
     print(df_f1)
+    print("=== Average Time per Article ===")
+    print(avg_time)
+    print("=== Parsing Errors ===")
+    print(errors)
 
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
@@ -145,6 +167,8 @@ def main():
         dataset=dataset,
         accuracy_table=df_acc.to_html(index=False, float_format="{:.2f}".format),
         f1_score_table=df_f1.to_html(index=False, float_format="{:.2f}".format),
+        average_time_table=avg_time.to_html(index=False, float_format="{:.2f}".format),
+        parsing_errors_table=errors.to_html(index=False),
         results=data
     )
 

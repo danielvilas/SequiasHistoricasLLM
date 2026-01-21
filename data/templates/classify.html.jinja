@@ -2,7 +2,7 @@
 <html lang="es">
     <meta charset="UTF-8">
 <head>
-    <title>Clasificación de Sequías</title>
+    <title>Clasificación de Sequías {{ dataset }}</title>
 </head>
 <body>
     <ul id="navigation">
@@ -11,7 +11,7 @@
     {% endfor %}
     </ul>
 
-    <h1>Clasificación de Sequías</h1>
+    <h1>Clasificación de Sequías {{ dataset }}</h1>
     <h2>Resumen</h2>
     <h3>Accuracy de los Modelos</h3>
     {{ accuracy_table | safe }}
@@ -25,6 +25,14 @@
 
     <h3> F1-Score global </h3>
     {{ f1_global | safe }}
+
+        <h3>Tiempos Medios</h3>
+    {{ average_time_table | safe }}
+
+    <h3>Errores de Parseo</h3>
+    {{ parsing_errors_table | safe }}
+
+    <p/>
 
     {% for model in results %}
     <div style="border-width: 2px; border-color: black; border-style: solid;"> 
