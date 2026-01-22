@@ -38,7 +38,7 @@ def spacy_tokenize(real_ds: pd.DataFrame) -> pd.DataFrame:
     print("Tokenization completed.")
     return real_ds
 
-def calc_UWR(row, exclude_stop=False) -> float:
+def calc_UWR(row, exclude_stop=True) -> float:
     doc = row["NLP"]
     words = [token for token in doc if not token.is_punct and not token.is_space]
     
@@ -66,14 +66,14 @@ def index_files(real_ds: pd.DataFrame, dataset) -> pd.DataFrame:
     # Tokenize with spacy
     real_ds = spacy_tokenize(real_ds)
     # Calculate UWR
-    def _calc_wr(row, bar, exclude_stop=False) -> float:
+    def _calc_wr(row, bar, exclude_stop=True) -> float:
         ret = calc_UWR(row, exclude_stop=exclude_stop)
         bar()
         return ret
     with alive_bar(len(real_ds), title=f'Calculating UWR') as bar:  
         real_ds["UWR"] = real_ds.apply(lambda row: _calc_wr(row, bar), axis=1)
-    with alive_bar(len(real_ds), title=f'Calculating UWR_es') as bar:  
-        real_ds["UWR_es"] = real_ds.apply(lambda row: _calc_wr(row, bar, exclude_stop=True), axis=1)
+    # with alive_bar(len(real_ds), title=f'Calculating UWR_es') as bar:  
+    #     real_ds["UWR_es"] = real_ds.apply(lambda row: _calc_wr(row, bar, exclude_stop=True), axis=1)
 
     print(real_ds.head())
     

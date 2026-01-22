@@ -70,12 +70,19 @@ def plot_series(series, title="UWR Boxplot", ylabel="UWR", file=None):
         plt.show()
     pass
 
-def plot_data(uwr, uwr_es, file=None):
+def plot_data(uwr, uwr_drought, uwr_no_drought, file=None):
     # hacemos un bloxplot de los dos series
-    plt.figure(figsize=(4,3))
-    plt.boxplot([uwr, uwr_es], tick_labels=["UWR","UWR_es"], vert=True)
-    plt.title("UWR vs UWR_es")
-    plt.ylabel("UWR")
+    fig,axes = plt.subplots(nrows=2, ncols=1, figsize=(4,6))
+    ax = axes[0]
+    ax.boxplot([uwr], tick_labels=["UWR"], vert=True)
+    ax.set_ylabel("UWR")
+ 
+    ax = axes[1]
+    ax.boxplot([uwr_drought, uwr_no_drought], tick_labels=["UWR Drought", "UWR No Drought"], vert=True)
+    ax.set_ylabel("UWR")
+    fig.suptitle("UWR Distribution")
+    plt.tight_layout()
+
     if file:
         plt.savefig(f"tmp/{file}")
     else:
@@ -91,24 +98,19 @@ def main():
     data = pd.read_csv(file)
 
     #data["UWR"] = -np.log(data["UWR"]) 
-    #data["UWR_es"] = -np.log(data["UWR_es"])
 
-    plot_data(data["UWR"], data["UWR_es"],file="uwr_vs_uwr_es.png")
+    plot_data(data["UWR"],data[data["has_sequia"]==True]["UWR"], data[data["has_sequia"]==False]["UWR"], file=f"{dataset}_bp_uwr_overall.png")
 
     #print(data.head())
     list_no_tests(data)
     uwr = extract_series(data, "UWR")
-    uwr_es = extract_series(data, "UWR_es")
 
-    plot_series(uwr, title="UWR Boxplot (full)", ylabel="UWR",file="uwr_boxplot_full.png")
-    plot_series(uwr_es, title="UWR_es Boxplot (full)", ylabel="UWR_es",file="uwr_es_boxplot_full.png")
+    plot_series(uwr, title="UWR Boxplot (full)", ylabel="UWR",file=f"{dataset}_bp_uwr_full.png")
 
 
     data = data[data['has_sequia']==True]
     uwr = extract_series(data, "UWR")
-    uwr_es = extract_series(data, "UWR_es") 
-    plot_series(uwr, title="UWR Boxplot (only droughts)", ylabel="UWR",file="uwr_boxplot_droughts.png")
-    plot_series(uwr_es, title="UWR_es Boxplot (only droughts)", ylabel="UWR_es",file="uwr_es_boxplot_droughts.png")
+    plot_series(uwr, title="UWR Boxplot (only droughts)", ylabel="UWR",file=f"{dataset}_bp_uwr_droughts.png")
 
 if __name__ == "__main__":
     main()

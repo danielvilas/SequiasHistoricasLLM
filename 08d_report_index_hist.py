@@ -30,9 +30,9 @@ def extract_series(data,uwr_col)->dict:
     return result
 
 
-def plot_series(series, title="UWR Boxplot", ylabel="UWR", file=None):
+def plot_series(series, title="UWR Boxplot", ylabel="instances", file=None):
     # hacemos un subplot de test filas y model columnas
-    fig, axs = plt.subplots(nrows=len(tests), ncols=len(modes), figsize=(16,12), sharex=True)
+    fig, axs = plt.subplots(nrows=len(tests), ncols=len(modes), figsize=(16,12))
     plt.suptitle(title)
     for i, test in enumerate(tests):
         for j, mode in enumerate(modes):
@@ -44,7 +44,8 @@ def plot_series(series, title="UWR Boxplot", ylabel="UWR", file=None):
                 ax.hist([data_ok, data_fail], label=['ok', 'fail'], bins=20, alpha=0.7)
                 ax.set_title(f"{test}-{mode}")
                 ax.set_ylabel(ylabel)
-                ax.tick_params(axis='x', rotation=45)
+                ax.set_xlabel("UWR")
+                #ax.tick_params(axis='x')
                 ax.legend()
             else:
                 ax.set_visible(False)
@@ -55,12 +56,18 @@ def plot_series(series, title="UWR Boxplot", ylabel="UWR", file=None):
         plt.show()
     pass
 
-def plot_data(uwr, uwr_es, file=None):
+def plot_data(uwr, uwr_drought, uwr_no_drought, file=None):
+    # hacemos un bloxplot de los dos series
+    fig,axes = plt.subplots(nrows=2, ncols=1, figsize=(4,6))
+    
+    ax = axes[0]
     # hacemos un histograma de los dos series
-    plt.figure(figsize=(4,3))
-    plt.hist([uwr, uwr_es], label=["UWR","UWR_es"], bins=20, alpha=0.7)
-    plt.title("UWR vs UWR_es")
-    plt.ylabel("UWR")
+    ax.hist([uwr], label=["UWR"], bins=20, alpha=0.7)
+    ax.set_ylabel("instances")
+    
+    ax = axes[1]
+    ax.hist([uwr_drought, uwr_no_drought], label=["UWR Drought", "UWR No Drought"], bins=20, alpha=0.7)
+    ax.set_ylabel("instances")
     plt.legend()
     if file:
         plt.savefig(f"tmp/{file}")
@@ -77,23 +84,17 @@ def main():
     data = pd.read_csv(file)
 
     #data["UWR"] = -np.log(data["UWR"]) 
-    #data["UWR_es"] = -np.log(data["UWR_es"])
 
-    plot_data(data["UWR"], data["UWR_es"],file="hist_uwr_vs_uwr_es.png")
+    plot_data(data["UWR"],data[data["has_sequia"]==True]["UWR"], data[data["has_sequia"]==False]["UWR"], file=f"{dataset}_hist_uwr_overall.png")
     #print(data.head())
+    
     list_no_tests(data)
     uwr = extract_series(data, "UWR")
-    uwr_es = extract_series(data, "UWR_es")
 
-    plot_series(uwr, title="UWR Boxplot (full)", ylabel="UWR",file="uwr_hist_full.png")
-    plot_series(uwr_es, title="UWR_es Boxplot (full)", ylabel="UWR_es",file="uwr_es_hist_full.png")
-
+    plot_series(uwr, title="UWR Boxplot (full)", ylabel="instances",file=f"{dataset}_hist_uwr_full.png")
 
     data = data[data['has_sequia']==True]
     uwr = extract_series(data, "UWR")
-    uwr_es = extract_series(data, "UWR_es") 
-    plot_series(uwr, title="UWR Boxplot (only droughts)", ylabel="UWR",file="uwr_hist_droughts.png")
-    plot_series(uwr_es, title="UWR_es Boxplot (only droughts)", ylabel="UWR_es",file="uwr_es_hist_droughts.png")
-
+    plot_series(uwr, title="UWR Boxplot (only droughts)", ylabel="instances",file=f"{dataset}_hist_uwr_droughts.png")
 if __name__ == "__main__":
     main()
