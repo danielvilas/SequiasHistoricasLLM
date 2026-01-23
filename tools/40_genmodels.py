@@ -9,7 +9,7 @@ summary={"no-summary":None,
 actions = ["detect","classify"]
 
 extra_models = {"efficient3":{"llm":"qwen3:8b","base":"efficient"},
-                "bestf13":{"llm":"qwen3:30b","base":"bestf1"},
+                "bestf13":{"llm":"qwen3:32b","base":"bestf1"},
                 "deepseek":{"llm":"deepseek-r1:8b","base":"efficient"}
                 }
 

@@ -77,13 +77,13 @@ models:
   name: detect-bestf13-no-summary
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
 - base: detect-bestf1
   name: detect-bestf13-summary
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
     steps:
       summarization:
@@ -92,7 +92,7 @@ models:
   name: detect-bestf13-summary-expert
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
     steps:
       summarization:
@@ -203,13 +203,13 @@ models:
   name: classify-bestf13-no-summary
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
 - base: classify-bestf1
   name: classify-bestf13-summary
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
     steps:
       summarization:
@@ -218,7 +218,7 @@ models:
   name: classify-bestf13-summary-expert
   overrides:
     llm:
-      name: qwen3:30b
+      name: qwen3:32b
       thinking: true
     steps:
       summarization:
