@@ -5,7 +5,7 @@ import numpy as np
 
 #tests = ["bestf1","bestf13","efficient","efficient3","fastest","deepseek"]
 
-tests= ["fastest","efficient","efficient3","deepseek","bestf13","bestf1"]
+tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
 modes = ["no-summary","summary","summary-expert"]
 
 def list_no_tests(data):

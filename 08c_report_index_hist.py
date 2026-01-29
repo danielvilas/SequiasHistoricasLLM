@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-tests= ["fastest","efficient","efficient3","deepseek","bestf13","bestf1"]
+tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
 modes = ["no-summary","summary","summary-expert"]
 
 def list_no_tests(data):
@@ -90,7 +90,7 @@ def main():
     
     list_no_tests(data)
     uwr = extract_series(data, "UWR")
-
+    
     plot_series(uwr, title="UWR Boxplot (full)", ylabel="instances",file=f"{dataset}_hist_uwr_full.png")
 
     data = data[data['has_sequia']==True]
