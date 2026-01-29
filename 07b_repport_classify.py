@@ -206,18 +206,45 @@ def build_table(data, key):
 
     return pd.DataFrame.from_dict(table, orient='index')
 
+colors = {
+    "bestf1-no-summary": "#0B1F3B",
+    "bestf1-summary": "#1E5AA8",
+    "bestf1-summary-expert": "#6EC6FF",
+
+    "bestf13-no-summary": "#1B5E20",
+    "bestf13-summary": "#2ECC71",
+    "bestf13-summary-expert": "#A8E6CF",
+    
+    "deepseek-no-summary": "#111827",
+    "deepseek-summary": "#374151",
+    "deepseek-summary-expert": "#D1D5DB",
+
+    "efficient-no-summary": "#D32F2F",
+    "efficient-summary": "#FF6F61",
+    "efficient-summary-expert": "#FF9800",
+    
+    "efficient3-no-summary": "#FFC107",
+    "efficient3-summary": "#FFE082",
+    "efficient3-summary-expert": "#C6FF00",
+    
+    "fastest-no-summary": "#4A148C",
+    "fastest-summary": "#7E57C2",
+    "fastest-summary-expert": "#E91E63",
+
+}   
+
 def build_bar_chart(df, name):
     groups = df.columns[1:].to_list()
 
     x = np.arange(len(groups))  # the label locations
     #print(x)
-    width = 0.06  # the width of the bars
+    width = 0.10  # the width of the bars
     multiplier = 0
 
     columns = df["model"].to_list()
     #display(columns)
 
-    fig, ax = plt.subplots(figsize=(7.25, 4), layout='constrained')
+    fig, ax = plt.subplots(figsize=(10, 4), layout='constrained')
 
     for c in columns:
         #display(c)
@@ -225,14 +252,15 @@ def build_bar_chart(df, name):
         #display(measurement)
 
         offset = width * multiplier
-        rects = ax.bar(x + offset, measurement, width, label=c)
+        extra_offest = multiplier // 3 * 0.05  # add extra space every 3 bars
+        rects = ax.bar(2.3*x + offset+extra_offest, measurement, width, label=c, color=colors.get(c, None))
         #ax.bar_label(rects, padding=3)
         multiplier += 1
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel(name)
     ax.set_title(f'{name} por Tipos de Sequia')
-    ax.set_xticks(x + width*6.9, groups)
+    ax.set_xticks(2.3*x + width*9.75, groups)
     fig.legend(loc='outside lower center', ncols=3)
     ax.set_ylim(0, 1)
 
