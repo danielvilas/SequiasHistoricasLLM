@@ -13,6 +13,8 @@ def main():
         extremadura.save_pages_df()
     else:
         print(f"{extremadura.paper}_pages_clean.csv already exists.")
+
+        
     if not os.path.exists(f"{hoy.clean_path}/{hoy.paper}/{hoy.paper}_pages_clean.csv"):
         hoy.fill_page_locations()
         print (hoy.df_pages.head())

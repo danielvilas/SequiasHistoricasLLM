@@ -126,8 +126,10 @@ def generate_reports(real_ds, dataset, test_name):
         cm = confusion_matrix(df['real_'+tipo], df['pred_'+tipo],labels=[True, False])
         print(cm)
         fig, ax = plt.subplots(figsize=(4, 2.5),layout="constrained")
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Drought', 'No Drought'])
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[tipo, f'No {tipo}'])
         disp.plot(ax=ax, text_kw={'fontsize':14}, cmap=plt.cm.Blues)
+        ax.set_ylabel("Real", fontsize=10)
+        ax.set_xlabel("Predicción", fontsize=10)
         #save to memory
         buf = io.BytesIO()
         disp.figure_.savefig(buf, format='png')

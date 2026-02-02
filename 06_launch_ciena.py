@@ -26,7 +26,7 @@ def run_test(ds, model, task):
 
 def main():
     if len(sys.argv) != 4:
-        print("Usage: python 05_launch_ciena.py <ds> <model> <detect|classify>")
+        print("Usage: python 06_launch_ciena.py <ds> <model> <detect|classify>")
         sys.exit(1)
 
     ds = sys.argv[1]

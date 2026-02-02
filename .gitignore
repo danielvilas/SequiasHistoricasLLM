@@ -224,9 +224,12 @@ data/datasets/test_ds/
 data/datasets/full_ds/
 tests
 results
+results-post
+results-pre
 tmp
 test.tar
 cesga_files.tar.gz
 search*.txt
 genmodels.yaml
 data/models_old.yaml
+results-post.tar.gz
