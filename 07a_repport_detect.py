@@ -78,6 +78,7 @@ def generate_reports(real_ds, dataset, test_name):
     disp.figure_.savefig(buf, format='png')
     buf.seek(0)
     b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(disp.figure_)
     
     # Display stats (accuracy, precision, recall, f1-score )º
     accuracy = accuracy_score(df['real_sequia'], df['pred_sequia'])
@@ -129,6 +130,100 @@ def build_table(data, key):
         table[model]["ciena"] = ciena_tvii[model][key]
     return pd.DataFrame.from_dict(table, orient='index')
 
+def calc_diff_summary(df_f1):
+    print("Calculating difference summary...")
+
+    def calc_diff(row):
+        name = row.name
+        base = row.get('no-summary')
+        summary = row.get('summary')
+        summary_expert = row.get('summary-expert', None)
+        ret = {'summary': summary - base}
+        if summary_expert is not None:
+            ret['summary_expert'] = summary_expert - base
+
+        return pd.Series(ret, name=name)
+    return df_f1.apply(calc_diff, axis=1)
+
+def plot_diff_summary(diff_summary):
+    fig, ax = plt.subplots(figsize=(6, 4))
+    diff_summary.plot(kind='bar', ax=ax)
+    ax.set_title('Cambios F1 Score tras aplicar resúmenes')
+    ax.set_ylabel('Diferencia F1-Score')
+    ax.axhline(0, color='gray', linestyle='--')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    #plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return b64_img
+
+def sort_tests(tests):
+    def sort_key(test_name):
+        parts = test_name.split('-')
+        model = parts[0]
+        mode = '-'.join(parts[1:])
+        model_order = {'bestf1': 0, 'efficient': 1, 'fastest': 2, 'deepseek': 3}
+        model_order= {"fastest":0,"efficient":1,"deepseek":2,"efficient3":3,"bestf13":4,"bestf1":5}        
+        mode_order = {'no-summary': 0, 'summary': 1, 'summary-expert': 2}
+
+        return (model_order.get(model, 99), mode_order.get(mode, 99))
+    
+    return sorted(tests, key=sort_key)
+
+def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
+    # Plot F1 scores with execution times
+    # color for model
+    colors = {
+        'fastest': '#E91E63',
+        'efficient': '#FF9800',
+        'deepseek': '#D1D5DB',
+        'efficient3': '#C6FF00',
+        'bestf13': '#2ECC71',
+        'bestf1': '#1E5AA8',
+    }
+    markers = {
+        'no-summary': 'o',
+        'summary': 's',
+        'summary-expert': 'D'
+    }
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    for model in df_f1['model']:
+        model_data = df_f1[df_f1['model'] == model]
+        for mode in ['no-summary', 'summary', 'summary-expert']:
+            if mode in model_data.columns:
+                ax1.scatter(times.loc[model, mode],
+                model_data[mode],
+                label=f"{model} - {mode}",
+                color=colors.get(model, 'gray'),
+                marker=markers.get(mode, 'o'))
+    ax1.set_ylabel('F1 Score')
+    ax1.set_xlabel('Tiempo por artículo (s)')
+    # Leyenda personalizada
+    # colores únicos para modelos
+    handles = [plt.Line2D([0], [0], marker='None', color='w', label='Modelo')] 
+    for model in df_f1['model']:
+        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=colors.get(model, 'gray'), markersize=10))
+    # Agregar separación entre modelos y modos
+    handles.append(plt.Line2D([0], [0], marker='None', color='w', label=''))
+    handles.append(plt.Line2D([0], [0], marker='None', color='w', label='Resumen'))
+    # marcadores únicos para modos 
+    for mode in ['no-summary', 'summary', 'summary-expert']:
+        handles.append(plt.Line2D([0], [0], marker=markers.get(mode, 'o'), color='w', label=mode, markerfacecolor='black', markersize=10))
+    ax1.legend(handles=handles, loc='best')
+    plt.title('F1 Score en Detección de Sequías')
+    plt.tight_layout()
+    #plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')  
+    buf.seek(0)
+    b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return b64_img
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python 06a_repport_detect.py <dataset>")
@@ -140,7 +235,7 @@ def main():
     real_ds = pd.read_csv(f"data/datasets/{dataset}_ds/detect/{dataset}_ds.csv")
     data = []
 
-    tests = sorted(tests)
+    tests = sort_tests(tests)
 
     for test in tests:
         print(f"Generating report for test: {test}")
@@ -156,11 +251,16 @@ def main():
     print(df_acc)
     print("=== F1-Score Table ===")
     print(df_f1)
+    img_f1_scores = plot_f1_scores(df_f1, avg_time)
     print("=== Average Time per Article ===")
     print(avg_time)
     print("=== Parsing Errors ===")
     print(errors)
 
+    diff_summary  = calc_diff_summary(df_f1)
+    print("=== Difference Summary ===")
+    print(diff_summary)
+    diff_summary_img = plot_diff_summary(diff_summary)
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
     )
@@ -171,7 +271,9 @@ def main():
         f1_score_table=df_f1.to_html(index=False, float_format="{:.2f}".format),
         average_time_table=avg_time.to_html(index=False, float_format="{:.2f}".format),
         parsing_errors_table=errors.to_html(index=False),
-        results=data
+        results=data,
+        diff_summary_image=diff_summary_img,
+        img_f1_scores=img_f1_scores
     )
 
     with open(f"results/{dataset}/detect/report-detect.html", "w") as f:
