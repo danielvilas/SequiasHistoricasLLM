@@ -292,6 +292,22 @@ def cross_table(df, key, include_ciena=True):
     
     return pd.DataFrame.from_dict(table, orient='index')
 
+
+
+def sort_tests(tests):
+    def sort_key(test_name):
+        parts = test_name.split('-')
+        model = parts[0]
+        mode = '-'.join(parts[1:])
+        model_order = {'bestf1': 0, 'efficient': 1, 'fastest': 2, 'deepseek': 3}
+        model_order= {"fastest":0,"efficient":1,"deepseek":2,"efficient3":3,"bestf13":4,"bestf1":5}        
+        mode_order = {'no-summary': 0, 'summary': 1, 'summary-expert': 2}
+
+        return (model_order.get(model, 99), mode_order.get(mode, 99))
+    
+    return sorted(tests, key=sort_key)
+
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python 06b_repport_classify.py <dataset>")
@@ -307,7 +323,7 @@ def main():
 
     data = []
 
-    tests = sorted(tests)
+    tests = sort_tests(tests)
 
     for test in tests:
         print(f"Generating report for test: {test}")
