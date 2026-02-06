@@ -25,6 +25,8 @@
 
     <h3> F1-Score global </h3>
     {{ f1_global | safe }}
+    <img src="data:image/png;base64,{{ img_f1_global }}" alt="Diferencias">
+
 
         <h3>Tiempos Medios</h3>
     {{ average_time_table | safe }}
@@ -32,7 +34,12 @@
     <h3>Errores de Parseo</h3>
     {{ parsing_errors_table | safe }}
 
+    
+    <h3>Diferencias tras resumen</h3>
+    <img src="data:image/png;base64,{{ diff_summary_image }}" alt="Diferencias">
+    
     <p/>
+
 
     {% for model in results %}
     <div style="border-width: 2px; border-color: black; border-style: solid;"> 

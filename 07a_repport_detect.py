@@ -261,6 +261,8 @@ def main():
     print("=== Difference Summary ===")
     print(diff_summary)
     diff_summary_img = plot_diff_summary(diff_summary)
+
+
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
     )
@@ -276,7 +278,7 @@ def main():
         img_f1_scores=img_f1_scores
     )
 
-    with open(f"results/{dataset}/detect/report-detect.html", "w") as f:
+    with open(f"results/{dataset}/detect/report-detect.html", "w", encoding='utf-8') as f:
         f.write(output)
 
 if __name__ == "__main__":

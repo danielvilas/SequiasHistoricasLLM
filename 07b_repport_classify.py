@@ -135,6 +135,8 @@ def generate_reports(real_ds, dataset, test_name):
         disp.figure_.savefig(buf, format='png')
         buf.seek(0)
         b64_img = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close(disp.figure_)
+
         accuracy = accuracy_score(df['real_'+tipo], df['pred_'+tipo])
         print(f"Accuracy: {accuracy:.2f}")
         score = precision_recall_fscore_support(df['real_'+tipo], df['pred_'+tipo],labels=[True])
@@ -270,6 +272,7 @@ def build_bar_chart(df, name):
     fig.savefig(buf, format='png')
     buf.seek(0)
     b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
     return b64_img
 
 
@@ -308,6 +311,88 @@ def sort_tests(tests):
     return sorted(tests, key=sort_key)
 
 
+def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
+    # Plot F1 scores with execution times
+    # color for model
+    colors = {
+        'fastest': '#E91E63',
+        'efficient': '#FF9800',
+        'deepseek': '#D1D5DB',
+        'efficient3': '#C6FF00',
+        'bestf13': '#2ECC71',
+        'bestf1': '#1E5AA8',
+    }
+    markers = {
+        'no-summary': 'o',
+        'summary': 's',
+        'summary-expert': 'D'
+    }
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    for model in df_f1['model']:
+        model_data = df_f1[df_f1['model'] == model]
+        for mode in ['no-summary', 'summary', 'summary-expert']:
+            if mode in model_data.columns:
+                ax1.scatter(times.loc[model, mode],
+                model_data[mode],
+                label=f"{model} - {mode}",
+                color=colors.get(model, 'gray'),
+                marker=markers.get(mode, 'o'))
+    ax1.set_ylabel('F1 Score')
+    ax1.set_xlabel('Tiempo por artículo (s)')
+    # Leyenda personalizada
+    # colores únicos para modelos
+    handles = [plt.Line2D([0], [0], marker='None', color='w', label='Modelo')] 
+    for model in df_f1['model']:
+        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=colors.get(model, 'gray'), markersize=10))
+    # Agregar separación entre modelos y modos
+    handles.append(plt.Line2D([0], [0], marker='None', color='w', label=''))
+    handles.append(plt.Line2D([0], [0], marker='None', color='w', label='Resumen'))
+    # marcadores únicos para modos 
+    for mode in ['no-summary', 'summary', 'summary-expert']:
+        handles.append(plt.Line2D([0], [0], marker=markers.get(mode, 'o'), color='w', label=mode, markerfacecolor='black', markersize=10))
+    ax1.legend(handles=handles, loc='best')
+    plt.title('F1 Score en Clasificación de Sequías')
+    plt.tight_layout()
+    # plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')  
+    buf.seek(0)
+    b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return b64_img
+
+def calc_diff_summary(df_f1):
+    print("Calculating difference summary...")
+
+    def calc_diff(row):
+        name = row.name
+        base = row.get('no-summary')
+        summary = row.get('summary')
+        summary_expert = row.get('summary-expert', None)
+        ret = {'summary': summary - base}
+        if summary_expert is not None:
+            ret['summary_expert'] = summary_expert - base
+
+        return pd.Series(ret, name=name)
+    return df_f1.apply(calc_diff, axis=1)
+
+def plot_diff_summary(diff_summary):
+    fig, ax = plt.subplots(figsize=(6, 4))
+    diff_summary.plot(kind='bar', ax=ax)
+    ax.set_title('Cambios F1 Score tras aplicar resúmenes')
+    ax.set_ylabel('Diferencia F1-Score')
+    ax.axhline(0, color='gray', linestyle='--')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    #plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    b64_img = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return b64_img
+
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python 06b_repport_classify.py <dataset>")
@@ -342,10 +427,18 @@ def main():
     print(df_f1)
     print("=== F1-Score Global Table ===")
     print(df_f1_global)
+
+    img_f1_global = plot_f1_scores(df_f1_global, avg_time)
+
     print("=== Average Time per Article ===")
     print(avg_time)
     print("=== Parsing Errors ===")
     print(errors)
+
+    diff_summary  = calc_diff_summary(df_f1_global)
+    print("=== Difference Summary ===")
+    print(diff_summary)
+    diff_summary_img = plot_diff_summary(diff_summary)
 
     renderer = jinja2.Environment(
         loader=jinja2.FileSystemLoader(searchpath="./data/templates/")
@@ -361,9 +454,11 @@ def main():
         results=data,
         accuracy_chart=build_bar_chart(df_acc, "Accuracy"),
         f1_score_chart=build_bar_chart(df_f1, "F1-Score"),
+        img_f1_global=img_f1_global,
+        diff_summary_image=diff_summary_img
     )
 
-    with open(f"results/{dataset}/classify/report-classify.html", "w") as f:
+    with open(f"results/{dataset}/classify/report-classify.html", "w", encoding='utf-8') as f:
         f.write(output)
 
 if __name__ == "__main__":
