@@ -222,6 +222,7 @@ data/datasets/work_ds/
 data/datasets/upd_ds/
 data/datasets/test_ds/
 data/datasets/full_ds/
+data/datasets/summary_ds/
 tests
 results
 results-post

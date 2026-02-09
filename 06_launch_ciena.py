@@ -6,6 +6,9 @@ import os
 
 from sequias_historicas.CienaLauncher import CienaLauncher
 
+import logging
+#logging.basicConfig(level=logging.DEBUG)
+
 def run_test(ds, model, task):
     print("--------------------------------")
     print (f"Running Ciena model '{model}' on dataset '{ds}' for task '{task}'")
