@@ -18,11 +18,20 @@
     <h3>F1-Score de los Modelos</h3>
     {{ f1_score_table | safe }}
 
+    <img src="data:image/png;base64,{{ img_f1_scores }}" alt="Diferencias">
+    
+    
+
     <h3>Tiempos Medios</h3>
     {{ average_time_table | safe }}
 
     <h3>Errores de Parseo</h3>
     {{ parsing_errors_table | safe }}
+
+
+    <h3>Diferencias tras resumen</h3>
+    <img src="data:image/png;base64,{{ diff_summary_image }}" alt="Diferencias">
+
 <p/>    
 
     {% for model in results %}
