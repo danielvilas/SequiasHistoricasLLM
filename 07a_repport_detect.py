@@ -281,5 +281,11 @@ def main():
     with open(f"results/{dataset}/detect/report-detect.html", "w", encoding='utf-8') as f:
         f.write(output)
 
+    for _, row in df_f1.iterrows():
+        print(f"\"{row['model']}-no-summary\": {row['no-summary']:.3f},")
+        print(f"\"{row['model']}-summary\": {row['summary']:.3f},")
+        if 'summary-expert' in row:
+            print(f"\"{row['model']}-summary-expert\": {row['summary-expert']:.3f},")
+
 if __name__ == "__main__":
     main()  

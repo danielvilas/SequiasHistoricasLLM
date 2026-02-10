@@ -5,11 +5,19 @@ import numpy as np
 import seaborn as sns
 
 from sklearn.metrics import precision_recall_fscore_support,accuracy_score
+import json
 
 #tests = ["bestf1","bestf13","efficient","efficient3","fastest","deepseek"]
 
 tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
 modes = ["no-summary","summary","summary-expert"]
+
+tipo_agro="agrocultura"
+tipo_ganaderia="ganaderia"
+tipo_hidrologia="hidrologia"
+tipo_energia="energia"
+tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia, tipo_energia]
+
 
 def list_no_tests(data):
     for test in tests:
@@ -23,15 +31,52 @@ def calc_scores(real_data, pred_data):
         return None
     if len(real_data) == 0:
         return None
+    
+    def safe_get(data, key):
+        ret = data.get(key, None)
+        if ret is None:
+            return False
+        return ret
+
+    def extract_tipo(row):
+
+        ret = {}
+        data = json.loads(row)
+        ret[tipo_agro] = safe_get(data, "agriculture")
+        ret[tipo_ganaderia] = safe_get(data, "livestock")
+        ret[tipo_hidrologia] = safe_get(data, "hydrological_resources")
+        ret[tipo_energia] = safe_get(data, "energy")
+
+        return pd.Series(ret)
+    
+    pred_data= pred_data.apply(lambda row: extract_tipo(row))
+    
+
     # Calculate scores: Accuracy, Precision, Recall, F1-Score
-    accuracy = accuracy_score(real_data, pred_data)
-    score = precision_recall_fscore_support(real_data, pred_data,labels=[True])
+    accuracy= 0.0
+    f1_score= 0.0
+    valid_types = 0
+    for tipo in tipos:
+        try:
+            tmp_accuracy = accuracy_score(real_data[tipo], pred_data[tipo])
+            score = precision_recall_fscore_support(real_data[tipo], pred_data[tipo],labels=[True], zero_division=np.nan)
+        except Exception as e:
+            print(pred_data[tipo])
+            print(f"Error calculating scores for tipo {tipo}: {e}")
+            raise e
+        tmp_f1 = score[2][0]
+        if np.isnan(tmp_f1):
+            continue
+        accuracy += tmp_accuracy
+        f1_score += tmp_f1
+        valid_types += 1
+
+    accuracy /= valid_types
+    f1_score /= valid_types
 
     return {
         'accuracy': accuracy,
-        'precision': score[0][0],
-        'recall': score[1][0],
-        'f1_score': score[2][0]
+        'f1_score': f1_score
     }
 
 def extract_series(data)->dict:
@@ -57,7 +102,7 @@ def extract_series(data)->dict:
                     result[bin_str][test][mode] = None
                     continue
                 try:
-                    scores = calc_scores(df_bin['has_sequia'], df_bin[col_name])
+                    scores = calc_scores(df_bin[tipos], df_bin[col_name])
                     result[bin_str][test][mode] = scores
                 except Exception as e:
                     print(f"Error calculating scores for bin {bin_str}, test {test}, mode {mode}: {e}")
@@ -126,24 +171,24 @@ def to_heatmap(data, score, min_score=0.0):
 
 
 order = {
-"fastest-no-summary": 0.109,
-"fastest-summary": 0.411,
-"fastest-summary-expert": 0.675,
-"efficient-no-summary": 0.742,
-"efficient-summary": 0.718,
-"efficient-summary-expert": 0.858,
-"deepseek-no-summary": 0.860,
-"deepseek-summary": 0.732,
-"deepseek-summary-expert": 0.828,
-"efficient3-no-summary": 0.898,
-"efficient3-summary": 0.757,
-"efficient3-summary-expert": 0.870,
-"bestf13-no-summary": 0.908,
-"bestf13-summary": 0.832,
-"bestf13-summary-expert": 0.890,
-"bestf1-no-summary": 0.916,
-"bestf1-summary": 0.823,
-"bestf1-summary-expert": 0.906
+"fastest-no-summary": 0.276,
+"fastest-summary": 0.275,
+"fastest-summary-expert": 0.486,
+"efficient-no-summary": 0.538,
+"efficient-summary": 0.497,
+"efficient-summary-expert": 0.602,
+"deepseek-no-summary": 0.519,
+"deepseek-summary": 0.472,
+"deepseek-summary-expert": 0.516,
+"efficient3-no-summary": 0.601,
+"efficient3-summary": 0.564,
+"efficient3-summary-expert": 0.510,
+"bestf13-no-summary": 0.635,
+"bestf13-summary": 0.594,
+"bestf13-summary-expert": 0.575,
+"bestf1-no-summary": 0.635,
+"bestf1-summary": 0.634,
+"bestf1-summary-expert": 0.616,
 }
 
 def order_series(df):
@@ -176,13 +221,13 @@ def plot_series(series, title="UWR HeatMap", score="f1_score", min_score=0.0, fi
 
 def main():
     if len(sys.argv) not in [2, 3]:
-        print("Usage: python 08b_report_index.py <dataset> [min_score]")
+        print("Usage: python 09d_report_index_hm.py <dataset> [min_score]")
         sys.exit(1)
     dataset = sys.argv[1]
     min_score = 0.0
     if len(sys.argv) == 3:
         min_score = float(sys.argv[2])
-    file = f"results/{dataset}/detect/{dataset}_indexed_ds.csv"
+    file = f"results/{dataset}/classify/{dataset}_indexed_ds.csv"
     data = pd.read_csv(file)
     list_no_tests(data)
     #data["UWR"] = -np.log(data["UWR"]) 
@@ -195,7 +240,7 @@ def main():
     
     uwr = extract_series(data_bin)
 
-    plot_series(uwr, title="UWR HeatMap", score="f1_score", min_score=min_score, file=f"{dataset}_hm_{min_score:.3f}_f1_det.png")
+    plot_series(uwr, title="UWR HeatMap", score="f1_score", min_score=min_score, file=f"{dataset}_hm_{min_score:.3f}_f1_class.png")
     #plot_series(uwr, title="UWR HeatMap", score="accuracy", min_score=min_score, file=f"{dataset}_hm_{min_score:.3f}_accuracy.png")
     
 
