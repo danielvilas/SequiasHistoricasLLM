@@ -155,7 +155,7 @@ def main():
     list_no_tests(data)
     #data["UWR"] = -np.log(data["UWR"]) 
 
-    data_bin, bin_edges = bin_data(data, "UWR", steps=0.05)
+    data_bin, bin_edges = bin_data(data, "UWR", steps=0.1)
     # for bin_str in data_bin:
     #     print(f"Bin {bin_str}: {len(data_bin[bin_str])} instances")
     

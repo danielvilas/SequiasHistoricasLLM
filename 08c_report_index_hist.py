@@ -58,17 +58,18 @@ def plot_series(series, title="UWR Boxplot", ylabel="instances", file=None):
 
 def plot_data(uwr, uwr_drought, uwr_no_drought, file=None):
     # hacemos un bloxplot de los dos series
-    fig,axes = plt.subplots(nrows=2, ncols=1, figsize=(4,6))
+    #fig,axes = plt.subplots(nrows=2, ncols=1, figsize=(4,6))
     
-    ax = axes[0]
+    #ax = axes[0]
     # hacemos un histograma de los dos series
-    ax.hist([uwr], label=["UWR"], bins=20, alpha=0.7)
-    ax.set_ylabel("instances")
-    
-    ax = axes[1]
-    ax.hist([uwr_drought, uwr_no_drought], label=["UWR Drought", "UWR No Drought"], bins=20, alpha=0.7)
-    ax.set_ylabel("instances")
-    plt.legend()
+    fig = plt.figure(figsize=(6,4))
+    plt.hist([uwr], label=["UWR"], bins=20, alpha=0.7)
+    plt.ylabel("número de PDFs")
+    plt.xlabel("UWR")
+    # ax = axes[1]
+    # ax.hist([uwr_drought, uwr_no_drought], label=["UWR Drought", "UWR No Drought"], bins=20, alpha=0.7)
+    # ax.set_ylabel("instances")
+    #plt.legend()
     if file:
         plt.savefig(f"tmp/{file}")
     else:
