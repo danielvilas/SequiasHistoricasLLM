@@ -5,33 +5,33 @@ base_dir="results"
 
 ds = "full"
 tasks = ["detect", "classify"] #["detect","classify"]
-#models = ["fastest","efficient","bestf1", "efficient3", "bestf13","deepseek"]
-models = ["bestf1", "bestf13"]
+#models = ["qwen25.3b","qwen25.7b","qwen25.72b.cot", "qwen3.8b", "qwen3.32b.cot","deepseek.8b"]
+models = ["qwen25.72b.cot", "qwen3.32b.cot"]
 modes = ["no-summary","summary","summary-expert"]
 # Estimaciones de tiempo con los datos de paper de CienaLLM
 time_short="05:00:00" # 2500 n por 4s = 166min (3h)
 time_long="45:00:00" # 2500 n por 60s = 2500min (41) 
 
 params={
-  "fastest-no-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
-  "fastest-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
-  "fastest-summary-expert":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
-  "efficient-no-summary":{"llm":"qwen2.5:7b-instruct-q4_K_M", "time":time_short},
-  "efficient-summary":{"llm":"qwen2.5:72b-instruct-q4_K_M", "time":time_short},
-  "efficient-summary-expert":{"llm":"qwen2.5:72b-instruct-q4_K_M", "time":time_short},
-  "bestf1-no-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_long},
-  "bestf1-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_long},
-  "bestf1-summary-expert":{"llm":"qwen2.5:7b-instruct-q4_K_M", "time":time_long},
+  "qwen25.3b-no-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
+  "qwen25.3b-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
+  "qwen25.3b-summary-expert":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_short},
+  "qwen25.7b-no-summary":{"llm":"qwen2.5:7b-instruct-q4_K_M", "time":time_short},
+  "qwen25.7b-summary":{"llm":"qwen2.5:72b-instruct-q4_K_M", "time":time_short},
+  "qwen25.7b-summary-expert":{"llm":"qwen2.5:72b-instruct-q4_K_M", "time":time_short},
+  "qwen25.72b.cot-no-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_long},
+  "qwen25.72b.cot-summary":{"llm":"qwen2.5:3b-instruct-q4_K_M", "time":time_long},
+  "qwen25.72b.cot-summary-expert":{"llm":"qwen2.5:7b-instruct-q4_K_M", "time":time_long},
 
-  "efficient3-no-summary":{"llm":"qwen3:8b", "time":time_short},
-  "efficient3-summary":{"llm":"qwen3:8b", "time":time_short},
-  "efficient3-summary-expert":{"llm":"qwen3:8b", "time":time_short},
-  "deepseek-no-summary":{"llm":"deepseek-r1:8b", "time":time_short},
-  "deepseek-summary":{"llm":"deepseek-r1:8b", "time":time_short},
-  "deepseek-summary-expert":{"llm":"deepseek-r1:8b", "time":time_short},
-  "bestf13-no-summary":{"llm":"qwen3:30b", "time":time_long},
-  "bestf13-summary":{"llm":"qwen3:30b", "time":time_long},
-  "bestf13-summary-expert":{"llm":"qwen3:30b", "time":time_long},
+  "qwen3.8b-no-summary":{"llm":"qwen3:8b", "time":time_short},
+  "qwen3.8b-summary":{"llm":"qwen3:8b", "time":time_short},
+  "qwen3.8b-summary-expert":{"llm":"qwen3:8b", "time":time_short},
+  "deepseek.8b-no-summary":{"llm":"deepseek.8b-r1:8b", "time":time_short},
+  "deepseek.8b-summary":{"llm":"deepseek.8b-r1:8b", "time":time_short},
+  "deepseek.8b-summary-expert":{"llm":"deepseek.8b-r1:8b", "time":time_short},
+  "qwen3.32b.cot-no-summary":{"llm":"qwen3:30b", "time":time_long},
+  "qwen3.32b.cot-summary":{"llm":"qwen3:30b", "time":time_long},
+  "qwen3.32b.cot-summary-expert":{"llm":"qwen3:30b", "time":time_long},
 }
 
 

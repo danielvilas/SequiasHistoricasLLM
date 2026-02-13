@@ -1,14 +1,14 @@
 models:
 - base: detect-fastest
-  name: detect-fastest-no-summary
+  name: detect-qwen25.3b-no-summary
 - base: detect-fastest
-  name: detect-fastest-summary
+  name: detect-qwen25.3b-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: detect-fastest
-  name: detect-fastest-summary-expert
+  name: detect-qwen25.3b-summary-expert
   overrides:
     steps:
       summarization:
@@ -16,15 +16,15 @@ models:
         prompt:
           language: en-expert
 - base: detect-efficient
-  name: detect-efficient-no-summary
+  name: detect-qwen25.7b-no-summary
 - base: detect-efficient
-  name: detect-efficient-summary
+  name: detect-qwen25.7b-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: detect-efficient
-  name: detect-efficient-summary-expert
+  name: detect-qwen25.7b-summary-expert
   overrides:
     steps:
       summarization:
@@ -32,15 +32,15 @@ models:
         prompt:
           language: en-expert
 - base: detect-bestf1
-  name: detect-bestf1-no-summary
+  name: detect-qwen25.72b.cot-no-summary
 - base: detect-bestf1
-  name: detect-bestf1-summary
+  name: detect-qwen25.72b.cot-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: detect-bestf1
-  name: detect-bestf1-summary-expert
+  name: detect-qwen25.72b.cot-summary-expert
   overrides:
     steps:
       summarization:
@@ -48,22 +48,13 @@ models:
         prompt:
           language: en-expert
 - base: detect-efficient
-  name: detect-efficient3-no-summary
+  name: detect-qwen3.8b-no-summary
   overrides:
     llm:
       name: qwen3:8b
       thinking: true
 - base: detect-efficient
-  name: detect-efficient3-summary
-  overrides:
-    llm:
-      name: qwen3:8b
-      thinking: true
-    steps:
-      summarization:
-        enable: true
-- base: detect-efficient
-  name: detect-efficient3-summary-expert
+  name: detect-qwen3.8b-summary
   overrides:
     llm:
       name: qwen3:8b
@@ -71,16 +62,25 @@ models:
     steps:
       summarization:
         enable: true
+- base: detect-efficient
+  name: detect-qwen3.8b-summary-expert
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
         prompt:
           language: en-expert
 - base: detect-bestf1
-  name: detect-bestf13-no-summary
+  name: detect-qwen3.32b.cot-no-summary
   overrides:
     llm:
       name: qwen3:32b
       thinking: true
 - base: detect-bestf1
-  name: detect-bestf13-summary
+  name: detect-qwen3.32b.cot-summary
   overrides:
     llm:
       name: qwen3:32b
@@ -89,7 +89,7 @@ models:
       summarization:
         enable: true
 - base: detect-bestf1
-  name: detect-bestf13-summary-expert
+  name: detect-qwen3.32b.cot-summary-expert
   overrides:
     llm:
       name: qwen3:32b
@@ -100,13 +100,13 @@ models:
         prompt:
           language: en-expert
 - base: detect-efficient
-  name: detect-deepseek-no-summary
+  name: detect-deepseek.8b-no-summary
   overrides:
     llm:
       name: deepseek-r1:8b
       thinking: true
 - base: detect-efficient
-  name: detect-deepseek-summary
+  name: detect-deepseek.8b-summary
   overrides:
     llm:
       name: deepseek-r1:8b
@@ -115,7 +115,7 @@ models:
       summarization:
         enable: true
 - base: detect-efficient
-  name: detect-deepseek-summary-expert
+  name: detect-deepseek.8b-summary-expert
   overrides:
     llm:
       name: deepseek-r1:8b
@@ -126,15 +126,15 @@ models:
         prompt:
           language: en-expert
 - base: classify-fastest
-  name: classify-fastest-no-summary
+  name: classify-qwen25.3b-no-summary
 - base: classify-fastest
-  name: classify-fastest-summary
+  name: classify-qwen25.3b-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: classify-fastest
-  name: classify-fastest-summary-expert
+  name: classify-qwen25.3b-summary-expert
   overrides:
     steps:
       summarization:
@@ -142,15 +142,15 @@ models:
         prompt:
           language: en-expert
 - base: classify-efficient
-  name: classify-efficient-no-summary
+  name: classify-qwen25.7b-no-summary
 - base: classify-efficient
-  name: classify-efficient-summary
+  name: classify-qwen25.7b-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: classify-efficient
-  name: classify-efficient-summary-expert
+  name: classify-qwen25.7b-summary-expert
   overrides:
     steps:
       summarization:
@@ -158,15 +158,15 @@ models:
         prompt:
           language: en-expert
 - base: classify-bestf1
-  name: classify-bestf1-no-summary
+  name: classify-qwen25.72b.cot-no-summary
 - base: classify-bestf1
-  name: classify-bestf1-summary
+  name: classify-qwen25.72b.cot-summary
   overrides:
     steps:
       summarization:
         enable: true
 - base: classify-bestf1
-  name: classify-bestf1-summary-expert
+  name: classify-qwen25.72b.cot-summary-expert
   overrides:
     steps:
       summarization:
@@ -174,22 +174,13 @@ models:
         prompt:
           language: en-expert
 - base: classify-efficient
-  name: classify-efficient3-no-summary
+  name: classify-qwen3.8b-no-summary
   overrides:
     llm:
       name: qwen3:8b
       thinking: true
 - base: classify-efficient
-  name: classify-efficient3-summary
-  overrides:
-    llm:
-      name: qwen3:8b
-      thinking: true
-    steps:
-      summarization:
-        enable: true
-- base: classify-efficient
-  name: classify-efficient3-summary-expert
+  name: classify-qwen3.8b-summary
   overrides:
     llm:
       name: qwen3:8b
@@ -197,16 +188,25 @@ models:
     steps:
       summarization:
         enable: true
+- base: classify-efficient
+  name: classify-qwen3.8b-summary-expert
+  overrides:
+    llm:
+      name: qwen3:8b
+      thinking: true
+    steps:
+      summarization:
+        enable: true
         prompt:
           language: en-expert
 - base: classify-bestf1
-  name: classify-bestf13-no-summary
+  name: classify-qwen3.32b.cot-no-summary
   overrides:
     llm:
       name: qwen3:32b
       thinking: true
 - base: classify-bestf1
-  name: classify-bestf13-summary
+  name: classify-qwen3.32b.cot-summary
   overrides:
     llm:
       name: qwen3:32b
@@ -215,7 +215,7 @@ models:
       summarization:
         enable: true
 - base: classify-bestf1
-  name: classify-bestf13-summary-expert
+  name: classify-qwen3.32b.cot-summary-expert
   overrides:
     llm:
       name: qwen3:32b
@@ -226,13 +226,13 @@ models:
         prompt:
           language: en-expert
 - base: classify-efficient
-  name: classify-deepseek-no-summary
+  name: classify-deepseek.8b-no-summary
   overrides:
     llm:
       name: deepseek-r1:8b
       thinking: true
 - base: classify-efficient
-  name: classify-deepseek-summary
+  name: classify-deepseek.8b-summary
   overrides:
     llm:
       name: deepseek-r1:8b
@@ -241,7 +241,7 @@ models:
       summarization:
         enable: true
 - base: classify-efficient
-  name: classify-deepseek-summary-expert
+  name: classify-deepseek.8b-summary-expert
   overrides:
     llm:
       name: deepseek-r1:8b

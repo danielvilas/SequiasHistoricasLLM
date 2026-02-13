@@ -23,9 +23,9 @@ tipo_hidrologia="hidrologia"
 tipo_energia="energia"
 tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia, tipo_energia]
 
-ciena_tvi={"bestf1":{"accuracy":0.742,"precision":0.737,"recall":0.832,"f1_score":0.782},
-            "efficient":{"accuracy":0.686,"precision":0.791,"recall":0.544,"f1_score":0.645},
-            "fastest":{"accuracy":0.634,"precision":0.769,"recall":0.320,"f1_score":0.452}
+ciena_tvi={"qwen25.72b.cot":{"accuracy":0.742,"precision":0.737,"recall":0.832,"f1_score":0.782},
+            "qwen25.7b":{"accuracy":0.686,"precision":0.791,"recall":0.544,"f1_score":0.645},
+            "qwen25.3b":{"accuracy":0.634,"precision":0.769,"recall":0.320,"f1_score":0.452}
             }
 
 def test_file_name_to_model(file_name):
@@ -211,29 +211,29 @@ def build_table(data, key):
     return pd.DataFrame.from_dict(table, orient='index')
 
 colors = {
-    "bestf1-no-summary": "#0B1F3B",
-    "bestf1-summary": "#1E5AA8",
-    "bestf1-summary-expert": "#6EC6FF",
+    "qwen25.72b.cot-no-summary": "#0B1F3B",
+    "qwen25.72b.cot-summary": "#1E5AA8",
+    "qwen25.72b.cot-summary-expert": "#6EC6FF",
 
-    "bestf13-no-summary": "#1B5E20",
-    "bestf13-summary": "#2ECC71",
-    "bestf13-summary-expert": "#A8E6CF",
+    "qwen3.32b.cot-no-summary": "#1B5E20",
+    "qwen3.32b.cot-summary": "#2ECC71",
+    "qwen3.32b.cot-summary-expert": "#A8E6CF",
     
-    "deepseek-no-summary": "#111827",
-    "deepseek-summary": "#374151",
-    "deepseek-summary-expert": "#D1D5DB",
+    "deepseek.8b-no-summary": "#111827",
+    "deepseek.8b-summary": "#374151",
+    "deepseek.8b-summary-expert": "#D1D5DB",
 
-    "efficient-no-summary": "#D32F2F",
-    "efficient-summary": "#FF6F61",
-    "efficient-summary-expert": "#FF9800",
+    "qwen25.7b-no-summary": "#D32F2F",
+    "qwen25.7b-summary": "#FF6F61",
+    "qwen25.7b-summary-expert": "#FF9800",
     
-    "efficient3-no-summary": "#FFC107",
-    "efficient3-summary": "#FFE082",
-    "efficient3-summary-expert": "#C6FF00",
+    "qwen3.8b-no-summary": "#FFC107",
+    "qwen3.8b-summary": "#FFE082",
+    "qwen3.8b-summary-expert": "#C6FF00",
     
-    "fastest-no-summary": "#4A148C",
-    "fastest-summary": "#7E57C2",
-    "fastest-summary-expert": "#E91E63",
+    "qwen25.3b-no-summary": "#4A148C",
+    "qwen25.3b-summary": "#7E57C2",
+    "qwen25.3b-summary-expert": "#E91E63",
 
 }   
 
@@ -302,8 +302,8 @@ def sort_tests(tests):
         parts = test_name.split('-')
         model = parts[0]
         mode = '-'.join(parts[1:])
-        model_order = {'bestf1': 0, 'efficient': 1, 'fastest': 2, 'deepseek': 3}
-        model_order= {"fastest":0,"efficient":1,"deepseek":2,"efficient3":3,"bestf13":4,"bestf1":5}        
+        model_order = {'qwen25.72b.cot': 0, 'qwen25.7b': 1, 'qwen25.3b': 2, 'deepseek.8b': 3}
+        model_order= {"qwen25.3b":0,"qwen25.7b":1,"deepseek.8b":2,"qwen3.8b":3,"qwen3.32b.cot":4,"qwen25.72b.cot":5}        
         mode_order = {'no-summary': 0, 'summary': 1, 'summary-expert': 2}
 
         return (model_order.get(model, 99), mode_order.get(mode, 99))
@@ -315,12 +315,12 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # Plot F1 scores with execution times
     # color for model
     colors = {
-        'fastest': '#E91E63',
-        'efficient': '#FF9800',
-        'deepseek': '#D1D5DB',
-        'efficient3': '#C6FF00',
-        'bestf13': '#2ECC71',
-        'bestf1': '#1E5AA8',
+        'qwen25.3b': '#E91E63',
+        'qwen25.7b': '#FF9800',
+        'deepseek.8b': '#D1D5DB',
+        'qwen3.8b': '#C6FF00',
+        'qwen3.32b.cot': '#2ECC71',
+        'qwen25.72b.cot': '#1E5AA8',
     }
     markers = {
         'no-summary': 'o',

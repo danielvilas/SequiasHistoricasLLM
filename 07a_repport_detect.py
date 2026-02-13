@@ -16,9 +16,9 @@ import base64
 
 from matplotlib import pyplot as plt
 
-ciena_tvii={"bestf1":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
-            "efficient":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
-            "fastest":{"accuracy":0.792,"precision":0.880,"recall":0.698,"f1_score":0.779}
+ciena_tvii={"qwen25.72b.cot":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
+            "qwen25.7b":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
+            "qwen25.3b":{"accuracy":0.792,"precision":0.880,"recall":0.698,"f1_score":0.779}
             }
 
 def build_ds_compare(real_ds, pred_ds): 
@@ -166,8 +166,8 @@ def sort_tests(tests):
         parts = test_name.split('-')
         model = parts[0]
         mode = '-'.join(parts[1:])
-        model_order = {'bestf1': 0, 'efficient': 1, 'fastest': 2, 'deepseek': 3}
-        model_order= {"fastest":0,"efficient":1,"deepseek":2,"efficient3":3,"bestf13":4,"bestf1":5}        
+        model_order = {'qwen25.72b.cot': 0, 'qwen25.7b': 1, 'qwen25.3b': 2, 'deepseek.8b': 3}
+        model_order= {"qwen25.3b":0,"qwen25.7b":1,"deepseek.8b":2,"qwen3.8b":3,"qwen3.32b.cot":4,"qwen25.72b.cot":5}        
         mode_order = {'no-summary': 0, 'summary': 1, 'summary-expert': 2}
 
         return (model_order.get(model, 99), mode_order.get(mode, 99))
@@ -178,12 +178,12 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # Plot F1 scores with execution times
     # color for model
     colors = {
-        'fastest': '#E91E63',
-        'efficient': '#FF9800',
-        'deepseek': '#D1D5DB',
-        'efficient3': '#C6FF00',
-        'bestf13': '#2ECC71',
-        'bestf1': '#1E5AA8',
+        'qwen25.3b': '#E91E63',
+        'qwen25.7b': '#FF9800',
+        'deepseek.8b': '#D1D5DB',
+        'qwen3.8b': '#C6FF00',
+        'qwen3.32b.cot': '#2ECC71',
+        'qwen25.72b.cot': '#1E5AA8',
     }
     markers = {
         'no-summary': 'o',

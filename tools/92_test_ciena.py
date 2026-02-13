@@ -7,12 +7,12 @@ import os
 ciena = CienaLauncher()
 
 models = [
-    "fastest-no-summary",
-    "fastest-summary",
-    "efficient-no-summary",
-    "efficient-summary",
-    "bestf1-no-summary",
-    "bestf1-summary",
+    "qwen25.3b-no-summary",
+    "qwen25.3b-summary",
+    "qwen25.7b-no-summary",
+    "qwen25.7b-summary",
+    "qwen25.72b.cot-no-summary",
+    "qwen25.72b.cot-summary",
 ]
 
 def main():

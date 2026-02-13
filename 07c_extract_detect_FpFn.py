@@ -16,9 +16,9 @@ import base64
 
 from matplotlib import pyplot as plt
 
-ciena_tvii={"bestf1":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
-            "efficient":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
-            "fastest":{"accuracy":0.792,"precision" :0.880,"recall":0.698,"f1_score":0.779}
+ciena_tvii={"qwen25.72b.cot":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
+            "qwen25.7b":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
+            "qwen25.3b":{"accuracy":0.792,"precision" :0.880,"recall":0.698,"f1_score":0.779}
             }
 
 def build_ds_compare(real_ds, pred_ds): 

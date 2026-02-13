@@ -1,22 +1,26 @@
 import yaml
 from copy import deepcopy
 
-base_models = ["fastest","efficient","bestf1"]
+base_models = {"fastest":"qwen25.3b","efficient":"qwen25.7b","bestf1":"qwen25.72b.cot"}
 summary={"no-summary":None,
          "summary":{"steps":{"summarization":{"enable": True}}},
          "summary-expert":{"steps":{"summarization":{"enable": True,"prompt":{"language":"en-expert"}}}}
          }
 actions = ["detect","classify"]
 
-extra_models = {"efficient3":{"llm":"qwen3:8b","base":"efficient"},
-                "bestf13":{"llm":"qwen3:32b","base":"bestf1"},
-                "deepseek":{"llm":"deepseek-r1:8b","base":"efficient"}
+extra_models = {"qwen3.8b":{"llm":"qwen3:8b","base":"efficient"},
+                "qwen3.32b.cot":{"llm":"qwen3:32b","base":"bestf1"},
+                "deepseek.8b":{"llm":"deepseek-r1:8b","base":"efficient"}
                 }
 
 def build_model(action:str, base_model:str, summ:str):
         
     base = f"{action}-{base_model}"
-    model_name = f"{base}-{summ}"
+
+    if base_model in base_models:
+        model_name = f"{action}-{base_models[base_model]}-{summ}"
+    else:
+        model_name = f"{action}-{base_model}-{summ}"
     cfg = {
         "name": model_name,
         "base": base,
@@ -37,7 +41,7 @@ def build_model(action:str, base_model:str, summ:str):
 def main():
     models={"models":[]}
     for action in actions:
-        for base_model in base_models+list(extra_models.keys()):
+        for base_model in list(base_models.keys())+list(extra_models.keys()):
             for summ in summary:
                 cfg = build_model(action, base_model, summ)
                 models["models"].append(cfg)

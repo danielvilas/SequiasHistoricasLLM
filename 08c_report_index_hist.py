@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
+tests= ["qwen25.3b","qwen25.7b","deepseek.8b","qwen3.8b","qwen3.32b.cot","qwen25.72b.cot"]
 modes = ["no-summary","summary","summary-expert"]
 
 def list_no_tests(data):

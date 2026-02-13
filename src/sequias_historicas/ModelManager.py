@@ -31,6 +31,11 @@ class ModelManager:
         for model_cfg in config_data:
             model = LlmModelConfig.from_dict(model_cfg)
             self.model_config[model.name] = model
+    def get_available_models(self) -> List[str]:
+        """
+        Devuelve una lista de los nombres de los modelos disponibles.
+        """
+        return list(self.model_config.keys())
             
     def get_model_config(self, name: str) -> LlmModelConfig:
         """

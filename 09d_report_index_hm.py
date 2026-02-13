@@ -7,9 +7,9 @@ import seaborn as sns
 from sklearn.metrics import precision_recall_fscore_support,accuracy_score
 import json
 
-#tests = ["bestf1","bestf13","efficient","efficient3","fastest","deepseek"]
+#tests = ["qwen25.72b.cot","qwen3.32b.cot","qwen25.7b","qwen3.8b","qwen25.3b","deepseek.8b"]
 
-tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
+tests= ["qwen25.3b","qwen25.7b","deepseek.8b","qwen3.8b","qwen3.32b.cot","qwen25.72b.cot"]
 modes = ["no-summary","summary","summary-expert"]
 
 tipo_agro="agrocultura"
@@ -171,24 +171,24 @@ def to_heatmap(data, score, min_score=0.0):
 
 
 order = {
-"fastest-no-summary": 0.276,
-"fastest-summary": 0.275,
-"fastest-summary-expert": 0.486,
-"efficient-no-summary": 0.538,
-"efficient-summary": 0.497,
-"efficient-summary-expert": 0.602,
-"deepseek-no-summary": 0.519,
-"deepseek-summary": 0.472,
-"deepseek-summary-expert": 0.516,
-"efficient3-no-summary": 0.601,
-"efficient3-summary": 0.564,
-"efficient3-summary-expert": 0.510,
-"bestf13-no-summary": 0.635,
-"bestf13-summary": 0.594,
-"bestf13-summary-expert": 0.575,
-"bestf1-no-summary": 0.635,
-"bestf1-summary": 0.634,
-"bestf1-summary-expert": 0.616,
+"qwen25.3b-no-summary": 0.276,
+"qwen25.3b-summary": 0.275,
+"qwen25.3b-summary-expert": 0.486,
+"qwen25.7b-no-summary": 0.538,
+"qwen25.7b-summary": 0.497,
+"qwen25.7b-summary-expert": 0.602,
+"deepseek.8b-no-summary": 0.519,
+"deepseek.8b-summary": 0.472,
+"deepseek.8b-summary-expert": 0.516,
+"qwen3.8b-no-summary": 0.601,
+"qwen3.8b-summary": 0.564,
+"qwen3.8b-summary-expert": 0.510,
+"qwen3.32b.cot-no-summary": 0.635,
+"qwen3.32b.cot-summary": 0.594,
+"qwen3.32b.cot-summary-expert": 0.575,
+"qwen25.72b.cot-no-summary": 0.635,
+"qwen25.72b.cot-summary": 0.634,
+"qwen25.72b.cot-summary-expert": 0.616,
 }
 
 def order_series(df):

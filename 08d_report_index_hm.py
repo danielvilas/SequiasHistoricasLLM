@@ -6,9 +6,9 @@ import seaborn as sns
 
 from sklearn.metrics import precision_recall_fscore_support,accuracy_score
 
-#tests = ["bestf1","bestf13","efficient","efficient3","fastest","deepseek"]
+#tests = ["qwen25.72b.cot","qwen3.32b.cot","qwen25.7b","qwen3.8b","qwen25.3b","deepseek.8b"]
 
-tests= ["fastest","efficient","deepseek","efficient3","bestf13","bestf1"]
+tests= ["qwen25.3b","qwen25.7b","deepseek.8b","qwen3.8b","qwen3.32b.cot","qwen25.72b.cot"]
 modes = ["no-summary","summary","summary-expert"]
 
 def list_no_tests(data):
@@ -126,24 +126,24 @@ def to_heatmap(data, score, min_score=0.0):
 
 
 order = {
-"fastest-no-summary": 0.109,
-"fastest-summary": 0.411,
-"fastest-summary-expert": 0.675,
-"efficient-no-summary": 0.742,
-"efficient-summary": 0.718,
-"efficient-summary-expert": 0.858,
-"deepseek-no-summary": 0.860,
-"deepseek-summary": 0.732,
-"deepseek-summary-expert": 0.828,
-"efficient3-no-summary": 0.898,
-"efficient3-summary": 0.757,
-"efficient3-summary-expert": 0.870,
-"bestf13-no-summary": 0.908,
-"bestf13-summary": 0.832,
-"bestf13-summary-expert": 0.890,
-"bestf1-no-summary": 0.916,
-"bestf1-summary": 0.823,
-"bestf1-summary-expert": 0.906
+"qwen25.3b-no-summary": 0.109,
+"qwen25.3b-summary": 0.411,
+"qwen25.3b-summary-expert": 0.675,
+"qwen25.7b-no-summary": 0.742,
+"qwen25.7b-summary": 0.718,
+"qwen25.7b-summary-expert": 0.858,
+"deepseek.8b-no-summary": 0.860,
+"deepseek.8b-summary": 0.732,
+"deepseek.8b-summary-expert": 0.828,
+"qwen3.8b-no-summary": 0.898,
+"qwen3.8b-summary": 0.757,
+"qwen3.8b-summary-expert": 0.870,
+"qwen3.32b.cot-no-summary": 0.908,
+"qwen3.32b.cot-summary": 0.832,
+"qwen3.32b.cot-summary-expert": 0.890,
+"qwen25.72b.cot-no-summary": 0.916,
+"qwen25.72b.cot-summary": 0.823,
+"qwen25.72b.cot-summary-expert": 0.906
 }
 
 def order_series(df):

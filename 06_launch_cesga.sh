@@ -5,7 +5,7 @@ export SLURM_GPUS=2
 
 export RESULTS_DIR=$HOME/SequiasHistoricasLLM/results/sbach_test
 export CIENA_LLM_MODEL="qwen2.5:3b-instruct-q4_K_M"
-export SH_MODEL="fastest-no-summary"
+export SH_MODEL="qwen25.3b-no-summary"
 export SH_DATASET="work"
 export SH_TASK="detect"
 
