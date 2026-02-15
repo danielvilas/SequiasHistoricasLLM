@@ -151,7 +151,7 @@ def plot_diff_summary(diff_summary):
     ax.set_title('Cambios F1 Score tras aplicar resúmenes')
     ax.set_ylabel('Diferencia F1-Score')
     ax.axhline(0, color='gray', linestyle='--')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right', rotation_mode='anchor')
     plt.tight_layout()
     #plt.show()
     buf = io.BytesIO()
@@ -174,17 +174,20 @@ def sort_tests(tests):
     
     return sorted(tests, key=sort_key)
 
+base_colors = {
+        'qwen25.3b': '#E91E63',
+        'qwen25.7b': '#FF9800',
+        'deepseek.8b': "#3C4965",
+        'qwen3.8b': "#7A980C",
+        'qwen3.32b.cot': '#1E5AA8',
+        'qwen25.72b.cot': '#2ECC71'
+    }
+
+
 def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # Plot F1 scores with execution times
     # color for model
-    colors = {
-        'qwen25.3b': '#E91E63',
-        'qwen25.7b': '#FF9800',
-        'deepseek.8b': '#D1D5DB',
-        'qwen3.8b': '#C6FF00',
-        'qwen3.32b.cot': '#2ECC71',
-        'qwen25.72b.cot': '#1E5AA8',
-    }
+
     markers = {
         'no-summary': 'o',
         'summary': 's',
@@ -198,7 +201,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
                 ax1.scatter(times.loc[model, mode],
                 model_data[mode],
                 label=f"{model} - {mode}",
-                color=colors.get(model, 'gray'),
+                color=base_colors.get(model, 'gray'),
                 marker=markers.get(mode, 'o'))
     ax1.set_ylabel('F1 Score')
     ax1.set_xlabel('Tiempo por artículo (s)')
@@ -206,7 +209,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # colores únicos para modelos
     handles = [plt.Line2D([0], [0], marker='None', color='w', label='Modelo')] 
     for model in df_f1['model']:
-        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=colors.get(model, 'gray'), markersize=10))
+        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=base_colors.get(model, 'gray'), markersize=10))
     # Agregar separación entre modelos y modos
     handles.append(plt.Line2D([0], [0], marker='None', color='w', label=''))
     handles.append(plt.Line2D([0], [0], marker='None', color='w', label='Resumen'))

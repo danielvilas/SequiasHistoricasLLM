@@ -25,7 +25,7 @@ def calc_scores(real_data, pred_data):
         return None
     # Calculate scores: Accuracy, Precision, Recall, F1-Score
     accuracy = accuracy_score(real_data, pred_data)
-    score = precision_recall_fscore_support(real_data, pred_data,labels=[True])
+    score = precision_recall_fscore_support(real_data, pred_data,labels=[True], zero_division=np.nan)
 
     return {
         'accuracy': accuracy,
@@ -76,7 +76,12 @@ def get_max(series):
                 max_val = local_max
     return max_val
 
-
+def bin_edges_to_str(i, bin_edges):
+    if i==0:
+        return f"<{bin_edges[i+1]:.2f}"
+    if i == len(bin_edges)-2:
+        return f">{bin_edges[i]:.2f}"
+    return f"{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}"
 
 def bin_data(data:pd.DataFrame, column, steps=0.05):
 
@@ -84,17 +89,22 @@ def bin_data(data:pd.DataFrame, column, steps=0.05):
     ret = {}
     bin_edges = []
     current = 0.0
+    bin_ommit = [0.05, 0.60, 0.65, 0.70]
     while current <= max_len + steps:
-        bin_edges.append(current)
+        current = round(current, 2)
+        if current not in bin_ommit:
+            bin_edges.append(current)
         current += steps
+    if bin_edges[-1] < max_len:
+        bin_edges.append(0.7)
 
     for i in range(len(bin_edges)-1):
-        bin_str = f"{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}"
+        bin_str = bin_edges_to_str(i, bin_edges)
         ret[bin_str] = []
     
     for _,row in data.iterrows():
         bin = np.digitize(row[column], bin_edges) -1    
-        bin_str = f"{bin_edges[bin]:.2f}-{bin_edges[bin+1]:.2f}"
+        bin_str = bin_edges_to_str(bin, bin_edges)
         ret[bin_str].append(row)
 
     return ret, bin_edges
@@ -187,7 +197,7 @@ def main():
     list_no_tests(data)
     #data["UWR"] = -np.log(data["UWR"]) 
 
-    data_bin, bin_edges = bin_data(data, "UWR", steps=0.1)
+    data_bin, bin_edges = bin_data(data, "UWR", steps=0.05)
     # for bin_str in data_bin:
     #     print(f"Bin {bin_str}: {len(data_bin[bin_str])} instances")
     

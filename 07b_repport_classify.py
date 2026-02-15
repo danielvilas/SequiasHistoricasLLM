@@ -15,6 +15,7 @@ import io
 import base64
 
 from matplotlib import pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 
 tipo_agro="agrocultura"
@@ -210,64 +211,92 @@ def build_table(data, key):
 
     return pd.DataFrame.from_dict(table, orient='index')
 
+def lighten_color(color, amount=0.5):
+    """
+    Lightens the given color by multiplying (1-luminosity) by the given amount.
+    Input can be matplotlib color string, hex string, or RGB tuple.
+
+    Examples:
+    >> lighten_color('g', 0.3)
+    >> lighten_color('#F034A3', 0.6)
+    >> lighten_color((.3,.55,.1), 0.5)
+    """
+    import matplotlib.colors as mc
+    import colorsys
+    try:
+        c = mc.cnames[color]
+    except:
+        c = color
+    c = colorsys.rgb_to_hls(*mc.to_rgb(c))
+    return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])
+
+
+base_colors = {
+        'qwen25.3b': '#E91E63',
+        'qwen25.7b': '#FF9800',
+        'deepseek.8b': "#3C4965",
+        'qwen3.8b': "#7A980C",
+        'qwen3.32b.cot': '#1E5AA8',
+        'qwen25.72b.cot': '#2ECC71'
+    }
+
 colors = {
-    "qwen25.72b.cot-no-summary": "#0B1F3B",
-    "qwen25.72b.cot-summary": "#1E5AA8",
-    "qwen25.72b.cot-summary-expert": "#6EC6FF",
+        
+    "qwen25.3b-no-summary": base_colors['qwen25.3b'],
+    "qwen25.3b-summary": lighten_color(base_colors['qwen25.3b'],0.4),
+    "qwen25.3b-summary-expert": lighten_color(base_colors['qwen25.3b'],0.2),
 
-    "qwen3.32b.cot-no-summary": "#1B5E20",
-    "qwen3.32b.cot-summary": "#2ECC71",
-    "qwen3.32b.cot-summary-expert": "#A8E6CF",
-    
-    "deepseek.8b-no-summary": "#111827",
-    "deepseek.8b-summary": "#374151",
-    "deepseek.8b-summary-expert": "#D1D5DB",
+    "qwen25.7b-no-summary": base_colors["qwen25.7b"],
+    "qwen25.7b-summary": lighten_color(base_colors["qwen25.7b"],0.4),
+    "qwen25.7b-summary-expert": lighten_color(base_colors["qwen25.7b"],0.2),
 
-    "qwen25.7b-no-summary": "#D32F2F",
-    "qwen25.7b-summary": "#FF6F61",
-    "qwen25.7b-summary-expert": "#FF9800",
-    
-    "qwen3.8b-no-summary": "#FFC107",
-    "qwen3.8b-summary": "#FFE082",
-    "qwen3.8b-summary-expert": "#C6FF00",
-    
-    "qwen25.3b-no-summary": "#4A148C",
-    "qwen25.3b-summary": "#7E57C2",
-    "qwen25.3b-summary-expert": "#E91E63",
+    "deepseek.8b-no-summary": base_colors["deepseek.8b"],
+    "deepseek.8b-summary": lighten_color(base_colors["deepseek.8b"],0.4),
+    "deepseek.8b-summary-expert": lighten_color(base_colors["deepseek.8b"],0.2),
 
+    "qwen3.8b-no-summary": base_colors["qwen3.8b"],
+    "qwen3.8b-summary": lighten_color(base_colors["qwen3.8b"],0.4),
+    "qwen3.8b-summary-expert": lighten_color(base_colors["qwen3.8b"],0.2),
+
+    "qwen3.32b.cot-no-summary": base_colors["qwen3.32b.cot"],
+    "qwen3.32b.cot-summary": lighten_color(base_colors["qwen3.32b.cot"],0.4),
+    "qwen3.32b.cot-summary-expert": lighten_color(base_colors["qwen3.32b.cot"],0.2),
+
+    "qwen25.72b.cot-no-summary": base_colors["qwen25.72b.cot"],
+    "qwen25.72b.cot-summary": lighten_color(base_colors["qwen25.72b.cot"],0.4),
+    "qwen25.72b.cot-summary-expert": lighten_color(base_colors["qwen25.72b.cot"],0.2),
 }   
 
 def build_bar_chart(df, name):
     groups = df.columns[1:].to_list()
+    models = df["model"].to_list()
 
-    x = np.arange(len(groups))  # the label locations
-    #print(x)
-    width = 0.10  # the width of the bars
-    multiplier = 0
+    groups = [group for group in groups if group != "global"]
+    print ("Building bar chart...")
 
-    columns = df["model"].to_list()
-    #display(columns)
-
-    fig, ax = plt.subplots(figsize=(10, 4), layout='constrained')
-
-    for c in columns:
-        #display(c)
-        measurement=df[df["model"]==c].iloc[0][groups]
-        #display(measurement)
-
-        offset = width * multiplier
-        extra_offest = multiplier // 3 * 0.05  # add extra space every 3 bars
-        rects = ax.bar(2.3*x + offset+extra_offest, measurement, width, label=c, color=colors.get(c, None))
-        #ax.bar_label(rects, padding=3)
-        multiplier += 1
-
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel(name)
-    ax.set_title(f'{name} por Tipos de Sequia')
-    ax.set_xticks(2.3*x + width*9.75, groups)
-    fig.legend(loc='outside lower center', ncols=3)
-    ax.set_ylim(0, 1)
-
+    # setup 4 subplots
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8), layout='constrained', sharex=True, sharey=True)
+    axes = axes.flatten()
+    for i, grupo in enumerate(groups):
+        ax = axes[i]
+        for model in models:
+            value = df[df["model"]==model].iloc[0][grupo]
+            if pd.isna(value):
+                continue
+            rects = ax.bar(model, value, color=colors.get(f"{model}", None))
+            #ax.bar_label(rects, padding=3)
+        ax.set_title(grupo.capitalize())
+        ax.set_ylim(0, 1)
+        ax.set_ylabel(name)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+        #ax.xticks(rotation=45, ha='right', rotation_mode='anchor')
+        #plt.xticks(rotation=45, ha='right', rotation_mode='anchor')
+        
+    handles = [mpatches.Patch(color=colors[model], label=model) for model in models]
+    fig.legend(handles=handles, loc='outside right center', ncol=1)
+    #plt.xticks(rotation=45, ha='right', rotation_mode='anchor')
+    plt.suptitle(f'{name} por Tipo de Sequía', fontsize=16)
+    
     buf = io.BytesIO()
     fig.savefig(buf, format='png')
     buf.seek(0)
@@ -314,14 +343,7 @@ def sort_tests(tests):
 def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # Plot F1 scores with execution times
     # color for model
-    colors = {
-        'qwen25.3b': '#E91E63',
-        'qwen25.7b': '#FF9800',
-        'deepseek.8b': '#D1D5DB',
-        'qwen3.8b': '#C6FF00',
-        'qwen3.32b.cot': '#2ECC71',
-        'qwen25.72b.cot': '#1E5AA8',
-    }
+
     markers = {
         'no-summary': 'o',
         'summary': 's',
@@ -335,7 +357,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
                 ax1.scatter(times.loc[model, mode],
                 model_data[mode],
                 label=f"{model} - {mode}",
-                color=colors.get(model, 'gray'),
+                color=base_colors.get(model, 'gray'),
                 marker=markers.get(mode, 'o'))
     ax1.set_ylabel('F1 Score')
     ax1.set_xlabel('Tiempo por artículo (s)')
@@ -343,7 +365,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # colores únicos para modelos
     handles = [plt.Line2D([0], [0], marker='None', color='w', label='Modelo')] 
     for model in df_f1['model']:
-        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=colors.get(model, 'gray'), markersize=10))
+        handles.append(plt.Line2D([0], [0], marker='o', color='w', label=model, markerfacecolor=base_colors.get(model, 'gray'), markersize=10))
     # Agregar separación entre modelos y modos
     handles.append(plt.Line2D([0], [0], marker='None', color='w', label=''))
     handles.append(plt.Line2D([0], [0], marker='None', color='w', label='Resumen'))
@@ -382,7 +404,7 @@ def plot_diff_summary(diff_summary):
     ax.set_title('Cambios F1 Score tras aplicar resúmenes')
     ax.set_ylabel('Diferencia F1-Score')
     ax.axhline(0, color='gray', linestyle='--')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right', rotation_mode='anchor')
     plt.tight_layout()
     #plt.show()
     buf = io.BytesIO()
