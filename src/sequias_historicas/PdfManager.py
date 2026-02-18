@@ -392,7 +392,7 @@ class PdfManager:
         return extract_hoy_codes(pdf)
 
 
-    def extract_text(self, paper:str, year:int, month:int, day:int, page:int, ed:str=None)-> str:
+    def extract_text(self, paper:str, year:int, month:int, day:int, page:int, ed:str=None)-> tuple[str, str]:
         filename = f"{year:04d}{month:02d}{day:02d}_{page:04d}" 
         if ed:
             filename += f"_{ed}"
@@ -400,8 +400,8 @@ class PdfManager:
         if os.path.exists (filepath):
             reader = PdfReader(filepath)
             text = ""
-            for page in reader.pages:
-                text += page.extract_text() + "\n"
+            for p_page in reader.pages:
+                text += p_page.extract_text() + "\n"
             reader.stream.close()
             return text,filepath
         else:

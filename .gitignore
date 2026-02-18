@@ -216,7 +216,6 @@ data/datasets/raw
 test.txt
 geo_db
 out.txt
-*.png
 data/datasets/json_test/
 data/datasets/work_ds/
 data/datasets/upd_ds/
