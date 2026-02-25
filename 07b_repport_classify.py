@@ -24,9 +24,9 @@ tipo_hidrologia="hidrologia"
 tipo_energia="energia"
 tipos = [tipo_agro, tipo_ganaderia, tipo_hidrologia, tipo_energia]
 
-ciena_tvi={"qwen25.72b.cot":{"accuracy":0.742,"precision":0.737,"recall":0.832,"f1_score":0.782},
-            "qwen25.7b":{"accuracy":0.686,"precision":0.791,"recall":0.544,"f1_score":0.645},
-            "qwen25.3b":{"accuracy":0.634,"precision":0.769,"recall":0.320,"f1_score":0.452}
+ciena_tvi={"qwen25.72b.cot":{"accuracy":0.742,"precision":0.737,"recall":0.832,"f1_score":0.782,"time": 30.07},
+            "qwen25.7b":{"accuracy":0.686,"precision":0.791,"recall":0.544,"f1_score":0.645,"time": 2.54},
+            "qwen25.3b":{"accuracy":0.634,"precision":0.769,"recall":0.320,"f1_score":0.452,"time": 1.811}
             }
 
 def test_file_name_to_model(file_name):
@@ -274,18 +274,26 @@ def build_bar_chart(df, name):
     groups = [group for group in groups if group != "global"]
     print ("Building bar chart...")
 
+    group_names={"agrocultura":"Agricultura","ganaderia":"Ganadería","hidrologia":"Hidrología","energia":"Energía"}
+
     # setup 4 subplots
     fig, axes = plt.subplots(2, 2, figsize=(12, 8), layout='constrained', sharex=True, sharey=True)
     axes = axes.flatten()
     for i, grupo in enumerate(groups):
         ax = axes[i]
+
+        if name == "F1-Score":
+            ax.axhline(y=ciena_tvi['qwen25.3b']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+            ax.axhline(y=ciena_tvi['qwen25.7b']["f1_score"], color='gray', linestyle='dashed',alpha=0.7)
+            ax.axhline(y=ciena_tvi['qwen25.72b.cot']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+
         for model in models:
             value = df[df["model"]==model].iloc[0][grupo]
             if pd.isna(value):
                 continue
             rects = ax.bar(model, value, color=colors.get(f"{model}", None))
             #ax.bar_label(rects, padding=3)
-        ax.set_title(grupo.capitalize())
+        ax.set_title(group_names.get(grupo, grupo.capitalize()))
         ax.set_ylim(0, 1)
         ax.set_ylabel(name)
         plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
@@ -349,7 +357,17 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
         'summary': 's',
         'summary-expert': 'D'
     }
-    fig, ax1 = plt.subplots(figsize=(8, 5))
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    # ax1.axhline(y=ciena_tvi['qwen25.3b']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+    # ax1.axhline(y=ciena_tvi['qwen25.7b']["f1_score"], color='gray', linestyle='dashed',alpha=0.7)
+    # ax1.axhline(y=ciena_tvi['qwen25.72b.cot']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+    
+    ax1.axvline(x=ciena_tvi['qwen25.3b']["time"], color='gray', linestyle='dotted',alpha=0.7)
+    ax1.axvline(x=ciena_tvi['qwen25.7b']["time"], color='gray', linestyle='dashed',alpha=0.7)
+    ax1.axvline(x=ciena_tvi['qwen25.72b.cot']["time"], color='gray', linestyle='dotted',alpha=0.7)
+
+
     for model in df_f1['model']:
         model_data = df_f1[df_f1['model'] == model]
         for mode in ['no-summary', 'summary', 'summary-expert']:
@@ -372,7 +390,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # marcadores únicos para modos 
     for mode in ['no-summary', 'summary', 'summary-expert']:
         handles.append(plt.Line2D([0], [0], marker=markers.get(mode, 'o'), color='w', label=mode, markerfacecolor='black', markersize=10))
-    ax1.legend(handles=handles, loc='best')
+    ax1.legend(handles=handles, loc='right', bbox_to_anchor=(1.25, 0.5))
     plt.title('F1 Score en Clasificación de Sequías')
     plt.tight_layout()
     # plt.show()

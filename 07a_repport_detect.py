@@ -16,9 +16,9 @@ import base64
 
 from matplotlib import pyplot as plt
 
-ciena_tvii={"qwen25.72b.cot":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968},
-            "qwen25.7b":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929},
-            "qwen25.3b":{"accuracy":0.792,"precision":0.880,"recall":0.698,"f1_score":0.779}
+ciena_tvii={"qwen25.72b.cot":{"accuracy":0.965,"precision":0.967,"recall":0.970,"f1_score":0.968,"time": 11.282},
+            "qwen25.7b":{"accuracy":0.925,"precision":0.968,"recall":0.894,"f1_score":0.929,"time": 1.738},
+            "qwen25.3b":{"accuracy":0.792,"precision":0.880,"recall":0.698,"f1_score":0.779,"time": 1.355}
             }
 
 def build_ds_compare(real_ds, pred_ds): 
@@ -193,7 +193,17 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
         'summary': 's',
         'summary-expert': 'D'
     }
-    fig, ax1 = plt.subplots(figsize=(8, 5))
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+    
+    # ax1.axhline(y=ciena_tvii['qwen25.3b']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+    # ax1.axhline(y=ciena_tvii['qwen25.7b']["f1_score"], color='gray', linestyle='dashed',alpha=0.7)
+    # ax1.axhline(y=ciena_tvii['qwen25.72b.cot']["f1_score"], color='gray', linestyle='dotted',alpha=0.7)
+
+    ax1.axvline(x=ciena_tvii['qwen25.3b']["time"], color='gray', linestyle='dotted',alpha=0.7)
+    ax1.axvline(x=ciena_tvii['qwen25.7b']["time"], color='gray', linestyle='dashed',alpha=0.7)
+    ax1.axvline(x=ciena_tvii['qwen25.72b.cot']["time"], color='gray', linestyle='dotted',alpha=0.7)
+
+
     for model in df_f1['model']:
         model_data = df_f1[df_f1['model'] == model]
         for mode in ['no-summary', 'summary', 'summary-expert']:
@@ -205,6 +215,7 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
                 marker=markers.get(mode, 'o'))
     ax1.set_ylabel('F1 Score')
     ax1.set_xlabel('Tiempo por artículo (s)')
+    
     # Leyenda personalizada
     # colores únicos para modelos
     handles = [plt.Line2D([0], [0], marker='None', color='w', label='Modelo')] 
@@ -216,7 +227,10 @@ def plot_f1_scores(df_f1:pd.DataFrame, times:pd.DataFrame):
     # marcadores únicos para modos 
     for mode in ['no-summary', 'summary', 'summary-expert']:
         handles.append(plt.Line2D([0], [0], marker=markers.get(mode, 'o'), color='w', label=mode, markerfacecolor='black', markersize=10))
-    ax1.legend(handles=handles, loc='best')
+    
+    
+    ax1.legend(handles=handles, loc='right', bbox_to_anchor=(1.25, 0.5))
+    
     plt.title('F1 Score en Detección de Sequías')
     plt.tight_layout()
     #plt.show()
